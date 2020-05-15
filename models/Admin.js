@@ -1,5 +1,6 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
+require('mongoose-type-email');
 const AdminSchema = new Schema({
   username  : {
               type : String,
@@ -14,11 +15,15 @@ const AdminSchema = new Schema({
                required : true
               },
   email     : {
-              type : String ,
-              required : true ,
-              lowercase : true ,
-              unique : true
+                work: {
+                  type: mongoose.SchemaTypes.Email,
+                  required: true
+                     },
+                home: {
+                  type: mongoose.SchemaTypes.Email,
+                  required: true
+                      }
               },
-  timestamps : true
+  { timestamps : true }
 });
 module.exports =  mongoose.model('Admin', AdminSchema);
