@@ -5,20 +5,17 @@ var Schema = mongoose.Schema;
 mongoose.connect('mongodb://localhost:27017/jobapp');
 
      /* Defining the Schema for Skills model */
-        var skillSchema = new Schema({
+        var SkillSchema = new Schema({
         	
-        	_id            : String,
-        	title          : String,
-        	basic_charge   : Decimal128,
-        	hourly_charge  : Decimal128,
-        	created_by     : {
-                               type: ObjectId,
-                               ref: "Admins"
-                             },
+        	id             : { type : String, required:true},
+        	title          : { type : String, required:true},
+        	basic_charge   : { type : Decimal128, required:true},
+        	hourly_charge  : { type : Decimal128, required:true},
+        	created_by     : { type: ObjectId, ref: "Admins"},
             timestamps     : true                
         
         });
 
 /* Creating the Skills model */
-var skills = mongoose.model('Skill', skillSchema);
+var skills = mongoose.model('Skill', SkillSchema);
 module.exports = skills;
