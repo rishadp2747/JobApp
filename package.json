@@ -12,6 +12,8 @@
     "http-errors": "~1.6.3",
     "jade": "~1.11.0",
     "mongoose": "^5.9.14",
+    "mongoose-intl-phone-number": "^1.1.1",
+    "mongoose-type-email": "^1.0.12",
     "morgan": "~1.9.1",
     "passport": "^0.4.1",
     "passport-facebook-token": "^3.3.0",
