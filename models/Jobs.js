@@ -1,7 +1,5 @@
 const mongoose = require('mongoose');
 
-mongoose.connect('mongodb://localhost:27017/jobs');
-
 const JobSchema = new mongoose.Schema({
     id : {type : String, required : true},
     title : {type : String},
