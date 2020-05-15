@@ -14,7 +14,7 @@ const JobSchema = new mongoose.Schema({
     status : {type: String,enum : [active, pending, commit, completed, rejected],default: 'active'},
     posted_by : { type: Schema.Types.ObjectId, ref: 'Users' },
     commited_by : { type: Schema.Types.ObjectId, ref: 'Users' },
-    requests : [{ type : Schema.Types.ObjectId, ref: 'User' }],
+    requests : [{ type : Schema.Types.ObjectId, ref: 'Users' }],
     created_at     : { type : Date, timestamps : true},
     updated_at     : { type : Date, timestamps : true}
 
