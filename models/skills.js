@@ -8,11 +8,11 @@ const SkillSchema = new Schema({
                      required:true
                      },
     basic_charge   : { 
-                     type : Decimal128, 
+                     type : Number, 
                      required:true
                      },
     hourly_charge  : { 
-                     type : Decimal128, 
+                     type : Number, 
                      required:true
                      },
     created_by     : { 
