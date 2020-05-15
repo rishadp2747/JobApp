@@ -13,6 +13,8 @@ const JobSchema = new mongoose.Schema({
     posted_by : { type: Schema.Types.ObjectId, ref: 'Users' },
     commited_by : { type: Schema.Types.ObjectId, ref: 'Users' },
     requests : [{ type : Schema.Types.ObjectId, ref: 'Users' }],
-},{ timestamps : true });
+},{
+    timestamps : true
+});
 
 module.exports = require('Job',JobSchema);
