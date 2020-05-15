@@ -36,7 +36,7 @@ const userSchema = new Schema({
     },
     sex : {
         type : String,
-        enum : ['male', 'female', 'other'],
+        enum : ['male', 'female', 'others'],
         default : 'male',
         required : true
     },
@@ -68,8 +68,6 @@ const userSchema = new Schema({
 },{
     timestamps : true
 });
-
-
 
 userSchema.plugin(passportLocalMongoose);
 userSchema.plugin(mongooseIntlPhoneNumber, {
