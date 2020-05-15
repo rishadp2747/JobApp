@@ -38,7 +38,8 @@ const JobSchema = new mongoose.Schema({
     },
     status : {
         type: String,
-        enum : [active, pending, commit, completed, rejected],default: 'active'
+        enum : [active, pending, commit, completed, rejected],
+        default: 'active'
     },
     posted_by : { 
         type: Schema.Types.ObjectId,
