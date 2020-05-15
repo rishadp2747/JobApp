@@ -8,10 +8,10 @@ const AdminSchema = new Schema({
                required : true
               },
   email     : {
-                  type: mongoose.SchemaTypes.Email,
-                  required: true
-              },
+                type: mongoose.SchemaTypes.Email,
+                required: true
+                },
   { timestamps : true }
-);
+});
 User.plugin(passportLocalMongoose);
 module.exports =  mongoose.model('Admin', AdminSchema);
