@@ -59,6 +59,12 @@ const userSchema = new Schema({
         ref  : 'Skill'
     }],
     rating : [ratingSchema],
+    facebookId : {
+        type : String
+    },
+    googleId : {
+        type : String
+    }
 },{
     timestamps : true
 });
