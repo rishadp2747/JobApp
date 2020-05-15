@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 
-mongoose.set('useCreateIndex', true)
 mongoose.connect('mongodb://localhost:27017/jobs', {useNewUrlParser: true, useUnifiedTopology: true});
 
 const JobSchema = new mongoose.Schema({
@@ -18,19 +17,23 @@ const JobSchema = new mongoose.Schema({
     },
     date_from : {
         type : Date,
-        timestamps : true
+        timestamps : true,
+        required : true
     },
     date_to : {
         type : Date,
-        timestamps : true
+        timestamps : true,
+        required : true
     },
     time_from : {
         type : Date,
-        timestamps : true
+        timestamps : true,
+        required : true
     },
     time_to : {
         type : Date,
-        timestamps : true
+        timestamps : true,
+        required : true
     },
     skill : {
         type: Schema.Types.ObjectId,
