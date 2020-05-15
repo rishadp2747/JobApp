@@ -1,6 +1,5 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
-mongoose.connect('mongodb://localhost:27017/database');
 const AdminSchema = new Schema({
   username  : {
               type : String,
@@ -10,7 +9,10 @@ const AdminSchema = new Schema({
               type : String ,
               required : 'This is a required field'
               },
-  name      : String,
+  name      : {
+               type: String,
+               required : true
+              },
   email     : {
               type : String ,
               required : true ,
