@@ -5,7 +5,7 @@ var Schema = mongoose.Schema;
 mongoose.connect('mongodb://localhost:27017/jobapp');
 
      /* Defining the Schema for Skills model */
-        var SkillSchema = new Schema({
+        const SkillSchema = new Schema({
         	
         	id             : { type : String, required:true},
         	title          : { type : String, required:true},
