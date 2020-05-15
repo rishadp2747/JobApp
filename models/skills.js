@@ -11,10 +11,7 @@ mongoose.connect('mongodb://localhost:27017/jobapp');
         	title          : String,
         	basic_charge   : Decimal128,
         	hourly_charge  : Decimal128,
-        	created_by     : {
-                               type: ObjectId,
-                               ref: "Admins"
-                             },
+        	created_by     : String,
             created_at     : Date,
             updated_at     : Date                 
         
@@ -22,3 +19,4 @@ mongoose.connect('mongodb://localhost:27017/jobapp');
 
 /* Creating the Skills model */
 var skills = mongoose.model('skills', skillSchema);
+module.exports = skills;
