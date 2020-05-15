@@ -12,7 +12,6 @@ const AdminSchema = new Schema({
                 required: true
                 }
               },
-  { timestamps : true 
-});
+  { timestamps : true });
 User.plugin(passportLocalMongoose);
 module.exports =  mongoose.model('Admin', AdminSchema);
