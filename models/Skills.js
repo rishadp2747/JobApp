@@ -1,6 +1,8 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
+
+
 /* Defining the Schema for Skills model */
 const SkillSchema = new Schema({
     title          : { 
@@ -16,10 +18,10 @@ const SkillSchema = new Schema({
                      required:true
                      },
     created_by     : { 
-                     type : ObjectId, 
-                     ref: "Admins"
+                     type : mongoose.Schema.Types.ObjectId,
+                     ref: "Admin"
                      }
-                     },
+            },
     { timestamps : true });
 
 /* Creating the Skills model */

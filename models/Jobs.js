@@ -37,8 +37,8 @@ const JobSchema = new mongoose.Schema({
         
     },
     skill : { 
-        type: Schema.Types.ObjectId, 
-        ref: 'Skills'
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Skill'
     },
     status : {
         type: String,
@@ -46,16 +46,16 @@ const JobSchema = new mongoose.Schema({
         default: 'active'
     },
     posted_by : {
-        type: Schema.Types.ObjectId, 
-        ref: 'Users' 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'User' 
     },
     commited_by : { 
-        type: Schema.Types.ObjectId, 
-        ref: 'Users' 
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User' 
     },
     requests : [{ 
-        type : Schema.Types.ObjectId, 
-        ref: 'Users' 
+        type : mongoose.Schema.Types.ObjectId,
+        ref: 'User' 
     }],
     
 },{
