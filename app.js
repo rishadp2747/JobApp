@@ -36,7 +36,7 @@ app.use('/', indexRouter);
 app.use('/api/users', usersRouter);
 app.use('/api/jobs', jobsRouter);
 app.use('/api/admins', adminsRouter);
-app.use('/api/skills', skilssRouter);
+app.use('/api/skills', skillsRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
