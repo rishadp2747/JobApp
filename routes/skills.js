@@ -1,6 +1,5 @@
 var express = require('express');
 var router = express.Router();
-var skills = require('../models/skills')
 var bodyParser = require('body-parser')
 router
 
