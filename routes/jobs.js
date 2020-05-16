@@ -1,6 +1,5 @@
 var express = require('express');
 var router = express.Router();
-var jobs = require('../models/jobs');
 var bodyParser = require('body-parser');
 
 /* for /jobs */

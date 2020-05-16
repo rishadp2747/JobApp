@@ -1,14 +1,38 @@
 const mongoose = require('mongoose');
+const Schema  = mongoose.Schema;
 
-const JobSchema = new mongoose.Schema({
-    
-    id : {
-        type : String, 
-        required : true
-        
+
+const TimeSchema = new Schema({
+    hr: {
+        type: Number, 
+        required: true, 
+        min: 0, 
+        max: 12
     },
+    min: {
+        type: Number, 
+        required: true,
+        min: 0, 
+        max: 59
+    },
+    sec: {
+        type: Number, 
+        required: true, 
+        min: 0, 
+        max: 59
+    },
+    day: {
+        type: Boolean,
+        require: true,
+        default: true
+    }
+});
+
+const JobSchema = new Schema({
+
     title : {
-        type : String
+        type : String,
+        required : true
         
     },
     description : {
@@ -27,12 +51,12 @@ const JobSchema = new mongoose.Schema({
         
     },
     time_from : {
-        type : Date, 
+        type : TimeSchema, 
         required : true
         
     },
     time_to : {
-        type : Date, 
+        type : TimeSchema, 
         required : true
         
     },
@@ -42,7 +66,7 @@ const JobSchema = new mongoose.Schema({
     },
     status : {
         type: String,
-        enum : [active, pending, commit, completed, rejected],
+        enum : ['active', 'pending', 'commit', 'completed', 'rejected'],
         default: 'active'
     },
     posted_by : {
@@ -56,10 +80,10 @@ const JobSchema = new mongoose.Schema({
     requests : [{ 
         type : mongoose.Schema.Types.ObjectId,
         ref: 'User' 
-    }],
+    }]
     
 },{
     timestamps : true
 });
 
-module.exports = require('Job',JobSchema);
+module.exports = mongoose.model('Job', JobSchema);
