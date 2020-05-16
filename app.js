@@ -3,11 +3,14 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+const mongoose = require('mongoose');
 
 
 var indexRouter = require('./routes/index');
 var skillsRouter = require('./routes/skills')
 var usersRouter = require('./routes/users');
+var jobsRouter = require('./routes/jobs');
+var adminsRouter = require('./routes/admins');
 
 var dbConfig = require('./config/database');
 
