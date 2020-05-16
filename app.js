@@ -7,6 +7,16 @@ var logger = require('morgan');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 
+var dbConfig = require('./config/database');
+
+//To establish connection to database
+const connect = mongoose.connect(dbConfig.mongoUrl+dbConfig.dbName);
+connect.then( (db) => {
+  console.log('Success! - Successfully connected to database');
+}, (err) => {
+  console.log('Failed! - Error while connecting to db  - '+err);
+})
+
 
 var app = express();
 
