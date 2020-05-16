@@ -5,7 +5,7 @@ var bodyParser = require('body-parser')
 router
 
 //to list all available skills
-.get('/skills',function(req,res,next){
+.get('/',function(req,res,next){
 skills.find()
   .then(function(doc){
     res.json({success : true, data : doc , message : "Skills listed successfully"})
@@ -15,7 +15,7 @@ skills.find()
 })
 
 //to create new skill
-.post('/skills',function(req,res,next){
+.post('/',function(req,res,next){
   var item = req.body;
 var data = new skills(item);
 data.save()
@@ -25,7 +25,7 @@ data.save()
 
 
 //to get a particular skill
-.get('/skills/:skillId',function(req,res,next){
+.get('/:skillId',function(req,res,next){
   skills.findById(req.params.skillId)
     .then(function(doc){
       res.json({success : true,data : doc,message : "skill listed successfully"})
@@ -36,7 +36,7 @@ data.save()
 })
 
 //to update a particular skill
-.put('/skills/:skillId',function(req,res,next){
+.put('/:skillId',function(req,res,next){
   var id = {_id : req.params.skillId};
   skills.findByIdAndUpdate(id, req.body)
   .then(function(doc){
@@ -48,7 +48,7 @@ data.save()
 })
 
 //to delete a particular skill
-.delete('/skills/:skillId',function(req,res,next){
+.delete('/:skillId',function(req,res,next){
   skills.findByIdAndDelete(req.params.skillId)
   .then(function(doc){
     res.json({success : true, data : doc , message : "Skill deleted successfully"})
