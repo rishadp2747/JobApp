@@ -30,7 +30,6 @@ router
 /* To add new job to the DB */
 .post('/jobs', function(req, res, next) {
         var item = req.body;
-        console.log(item);
   var data = new jobs(item);
   data.save()
       .then(()=> res.json({success : true, message : "Job Successfully added"}))
