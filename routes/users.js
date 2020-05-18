@@ -59,7 +59,10 @@ router.post('/register', (req, res, next) => {
       passport.authenticate('local')(req,res, () => {
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
-        res.json({success : true, status: 'Registration Successful!'});
+        res.json({
+          success : true, 
+          message : "Registration Successfully Completed"
+        });
       });
     }
 
@@ -72,7 +75,11 @@ router.post('/login', passport.authenticate('local'), (req, res) => {
   var token = authenticate.getToken({__id: req.user._id});
   res.statusCode = 200;
   res.setHeader('Content-Type', 'application/json');
-  res.json({success : true, status: 'Successfuly loged in !', token : token});
+  res.json({
+    success : true, 
+    data : {"token" : token}, 
+    message : "Login Successfully"
+  });
 });
 
 
