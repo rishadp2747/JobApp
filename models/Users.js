@@ -1,10 +1,11 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var passportLocalMongoose = require('passport-local-mongoose');
-var mongooseIntlPhoneNumber = require('mongoose-intl-phone-number');
+var mongooseTypePhone = require('mongoose-type-phone');
+ 
 
 require('mongoose-type-email');
-const Email = mongoose.Types.Email;
+
 
 const ratingSchema = new Schema({
     job : {
@@ -51,8 +52,16 @@ const userSchema = new Schema({
             required: true
         }
     },
+    phone: {
+        type: mongoose.SchemaTypes.Phone,
+        required: true,
+        allowedNumberTypes: [mongooseTypePhone.PhoneNumberType.MOBILE],
+        phoneNumberFormat: mongooseTypePhone.PhoneNumberFormat.INTERNATIONAL, // can be omitted to keep raw input
+        defaultRegion: 'IND',
+    },
     email : {
-        type : Email,
+        type : mongoose.SchemaTypes.Email
+        
     },
     skills : [{
         type : mongoose.Schema.Types.ObjectId,
@@ -70,9 +79,6 @@ const userSchema = new Schema({
 });
 
 userSchema.plugin(passportLocalMongoose);
-userSchema.plugin(mongooseIntlPhoneNumber, {
-    hook : 'Validate',
-    phoneNumberField : 'phone'
-});
+
 
 module.exports = mongoose.model('User', userSchema);
