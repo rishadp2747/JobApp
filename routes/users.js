@@ -14,10 +14,6 @@ router.use(bodyParser.json());
 
 
 router.post('/register', (req, res, next) => {
-
-  
- 
-
   if(!Number.isInteger(req.body.age)){
     res.statusCode = 500;
     res.setHeader('Content-Type', 'application/json');
