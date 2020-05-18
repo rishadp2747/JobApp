@@ -1,5 +1,8 @@
 var express = require('express');
 const bodyParser = require('body-parser');
+var otpGenerator = require('otp-generator');
+
+
 
 var User = require('../models/Users');
 var passport = require('passport');
@@ -11,6 +14,9 @@ router.use(bodyParser.json());
 
 
 router.post('/register', (req, res, next) => {
+
+  
+ 
 
   if(!Number.isInteger(req.body.age)){
     res.statusCode = 500;
@@ -57,6 +63,9 @@ router.post('/register', (req, res, next) => {
         }
       });
       passport.authenticate('local')(req,res, () => {
+
+
+
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
         res.json({
@@ -81,6 +90,9 @@ router.post('/login', passport.authenticate('local'), (req, res) => {
     message : "Login Successfully"
   });
 });
+
+
+
 
 
 

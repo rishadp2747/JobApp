@@ -56,11 +56,12 @@ const userSchema = new Schema({
         type: mongoose.SchemaTypes.Phone,
         required: true,
         allowedNumberTypes: [mongooseTypePhone.PhoneNumberType.MOBILE],
-        phoneNumberFormat: mongooseTypePhone.PhoneNumberFormat.INTERNATIONAL, // can be omitted to keep raw input
+        phoneNumberFormat: mongooseTypePhone.PhoneNumberFormat.INTERNATIONAL,
         defaultRegion: 'IND',
     },
     email : {
-        type : mongoose.SchemaTypes.Email
+        type : mongoose.SchemaTypes.Email,
+        unique : true
         
     },
     skills : [{
