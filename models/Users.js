@@ -26,6 +26,20 @@ const ratingSchema = new Schema({
     }
 });
 
+const emailVerification = new Schema({
+    verify : {
+        type : Boolean,
+        default : false
+    },
+    OTP : {
+        type    : Number,
+        min     : 1000,
+        max     : 9999
+    }
+},{
+    timestamps : true
+});
+
 const userSchema = new Schema({
     name : {
         type : String,
@@ -61,8 +75,16 @@ const userSchema = new Schema({
     },
     email : {
         type : mongoose.SchemaTypes.Email,
+        required : true,
         unique : true
-        
+    },
+    emailVerify : {
+        type : emailVerification,
+    },
+    emailOTP : {
+        type : Number,
+        min : 1000,
+        max : 9999
     },
     skills : [{
         type : mongoose.Schema.Types.ObjectId,

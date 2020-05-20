@@ -8,7 +8,8 @@ dotenv.config();
  
 
 
-exports.emailVerifier = (user, mail, next) => {
+exports.emailVerifier = function (user, mail, done) {
+
     var otp = otpGenerator.generate(4, { upperCase: false, specialChars: false, alphabets: false });
     ejs.renderFile(path.resolve(__dirname, '..', 'vendor/mail/emailVerification.ejs'), 
         { 
@@ -18,7 +19,7 @@ exports.emailVerifier = (user, mail, next) => {
         }, 
     (err, data) => {
         if(err){
-            next(err);
+            return done(err,false);
         }else{
             transporter.sendMail({
                 from: '"FCS OTP Verifier" <mail@fcs.net.in>', // sender address
@@ -26,7 +27,14 @@ exports.emailVerifier = (user, mail, next) => {
                 subject: process.env.APP_NAME+" : email verification", // Subject line
                 html: data, // html body
             } ,(err) => {
-                next(err);
+                if(err){
+                    console.log(err);
+                    return done(err,false);
+                }else{
+                    
+                    return done(null, otp);
+                }
+               
             });
         }
     });
