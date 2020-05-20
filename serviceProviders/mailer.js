@@ -1,14 +1,23 @@
 const transporter = require('../config/mail');
 const ejs = require('ejs');
-var otpGenerator = require('otp-generator')
+var path = require('path');
+var otpGenerator = require('otp-generator');
+const dotenv = require('dotenv');
+dotenv.config();
+
  
 
 
 exports.emailVerifier = (user, mail, next) => {
     var otp = otpGenerator.generate(4, { upperCase: false, specialChars: false, alphabets: false });
-    ejs.renderFile(__dirname + "/vendor/mail/emailVerification.ejs", { app: process.env.APP_NAME, name: user, otp : otp}, (err, data) => {
+    ejs.renderFile(path.resolve(__dirname, '..', 'vendor/mail/emailVerification.ejs'), 
+        { 
+            app: process.env.APP_NAME, 
+            name: user, 
+            otp : otp
+        }, 
+    (err, data) => {
         if(err){
-            console.log(err);
             next(err);
         }else{
             transporter.sendMail({
@@ -17,7 +26,6 @@ exports.emailVerifier = (user, mail, next) => {
                 subject: process.env.APP_NAME+" : email verification", // Subject line
                 html: data, // html body
             } ,(err) => {
-                console.log(err);
                 next(err);
             });
         }
