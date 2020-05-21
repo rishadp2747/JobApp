@@ -179,17 +179,14 @@ router.post('/login', passport.authenticate('local'), (req, res) => {
 
 
 router.post('/reset_password/email/otp',(req,res,next) => {
-  verify.verifyEmail(req.body.email)
+  verify.checkEmail(req.body.email)
     .then( (user) => {
-      console.log('over 1');
       mailer.resetVerify(user.name, user.email)
       .then( (otp) => {
-        console.log('over2')
         user.resetVerify = {'verify' : false, 'OTP' : otp };
         return user;
       })
       .then((user) => {
-        console.log('over3');
         if(user){
           user.save( (err) => {
             if(err) {
@@ -203,7 +200,6 @@ router.post('/reset_password/email/otp',(req,res,next) => {
         }else return;
       })
       .catch( (err) => {
-        console.log('err 1');
         res.statusCode = 500;
         res.json({success : false, error : err, message : 'Failed to send OTP to given email'});
       });
@@ -215,7 +211,7 @@ router.post('/reset_password/email/otp',(req,res,next) => {
 });
 
 router.post('/reset_password/email/verify', (req, res, next) => {
-  verify.verifyEmail(req.body.email)
+  verify.checkEmail(req.body.email)
     .then( (user) => {
       otpTimeChecker.timeChecker(user.resetVerify.updatedAt)
         .then( () => {
@@ -228,27 +224,61 @@ router.post('/reset_password/email/verify', (req, res, next) => {
             res.json({success : false, error : 'OTPFailed', message : 'Failed to verify the user'});
           }
         })
+        .then( (user) => {
+          if(user){
+            user.save( (err) => {
+              if(err) {
+                res.statusCode = 500;
+                res.json({success : false, error : err, message : 'Failed to update user with OTP'});
+              }else{
+                res.statusCode = 200;
+                res.json({success : true, data: {userId :user._id }, message : 'OTP verified successfully'});
+              }
+            });
+          }
+        })
         .catch( (err) =>{
           res.statusCode = 500;
           res.json({success : false, error : 'OTPTimeError', message : 'Time out please resend the OTP'});
         });
     })
+    .catch( (err) => {
+      res.statusCode = 500;
+      res.json({success : false, error : err, message : 'No such User found'});
+    });
+});
+
+
+//to reset the password
+router.put('/reset_password/:userId', (req, res, next) => {
+  verify.verifyReset(req.params.userId)
     .then( (user) => {
+      if(req.body.password === req.body.confirm){
+        user.password = req.body.password
+        user.resetVerify.verify = false;
+        user.resetVerify.OTP = null;
+        return user;
+      }else{
+        res.statusCode = 500;
+        res.json({success : false, error : 'MissMatchError', message : 'Password and confirmation password is not matching'});
+      }
+    })
+    .then((user) => {
       if(user){
         user.save( (err) => {
           if(err) {
             res.statusCode = 500;
-            res.json({success : false, error : err, message : 'Failed to update user with OTP'});
+            res.json({success : false, error : err, message : 'Failed to update user with new password'});
           }else{
             res.statusCode = 200;
-            res.json({success : true, message : 'OTP sended successfully'});
+            res.json({success : true, message : 'Password resetted successfully'});
           }
         });
-      }else return;
+      }
     })
-    .catch( (err) => {
+    .catch( (err) =>{
       res.statusCode = 500;
-      res.json({success : false, error : err, message : 'No such User found'});
+      res.json({success : false, error : 'ResetError', message : err});
     });
 });
 

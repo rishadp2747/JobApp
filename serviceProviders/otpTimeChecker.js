@@ -27,7 +27,7 @@ exports.timeChecker = function(pastTime) {
     let min_diff = t_min - min;
     let sec_diff = t_sec - sec;
 
-    console.log(hr_diff + ':' + min_diff + ':' + sec_diff);
+    //console.log(hr_diff + ':' + min_diff + ':' + sec_diff);
 
     var err = "TimeOut please resend OTP";
 

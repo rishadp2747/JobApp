@@ -32,9 +32,8 @@ const emailVerification = new Schema({
         default : false
     },
     OTP : {
-        type    : Number,
-        min     : 1000,
-        max     : 9999
+        type    : String,
+        maxlength : 4,
     }
 },{
     timestamps : true
