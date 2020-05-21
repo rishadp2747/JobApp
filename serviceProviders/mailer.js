@@ -62,7 +62,7 @@ exports.resetVerify = function(user, mail){
                         html: data, // html body
                     } ,(err) => {
                         if(err){
-                            reject(err+'dd');
+                            reject(err);
                         }else{
                             resolve(otp);
                         }

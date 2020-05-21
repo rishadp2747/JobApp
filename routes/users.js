@@ -179,7 +179,6 @@ router.post('/login', passport.authenticate('local'), (req, res) => {
 
 
 router.post('/reset_password/email/otp',(req,res,next) => {
-  var user;
   verify.verifyEmail(req.body.email)
     .then( (user) => {
       console.log('over 1');
@@ -211,7 +210,7 @@ router.post('/reset_password/email/otp',(req,res,next) => {
     })
     .catch( (err) => {
       res.statusCode = 500;
-      res.json({success : false, error : err, message : 'No such User found'});
+      res.json({success : false, error : "UserError", message : 'No such User found'});
     });
 });
 
