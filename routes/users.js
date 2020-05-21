@@ -7,7 +7,9 @@ var otpTimeChecker = require('../serviceProviders/otpTimeChecker');
 
 var User = require('../models/Users');
 var passport = require('passport');
+
 var authenticate = require('../middlewares/user');
+var verify = require('../middlewares/verify');
 
 var router = express.Router();
 
@@ -72,7 +74,7 @@ router.post('/register', (req, res, next) => {
   } 
 });
 
-router.put('/resend/email_otp',authenticate.verifyUser, (req, res) => {
+router.put('/resend/email_otp', (req, res) => {
   User.findById(req.user._id)
   .then( (user) => {
     mailer.emailVerifier(user.name, user.email, (err, result) => {
@@ -106,7 +108,7 @@ router.put('/resend/email_otp',authenticate.verifyUser, (req, res) => {
  
 });
 
-router.post('/email_otp/verify', authenticate.verifyUser, (req, res, next) => {
+router.post('/email_otp/verify', (req, res, next) => {
   User.findById(req.user._id)
     .then( (user) => {
       otpTimeChecker.timeChecker(user.emailVerify.updatedAt)
@@ -175,6 +177,40 @@ router.post('/login', passport.authenticate('local'), (req, res) => {
     data : {"token" : token}, 
     message : "Login Successfully"
   });
+});
+
+
+router.post('/reset_password/email/otp',(req,res,next) => {
+  verify.verifyEmail(req.body.email)
+    .then( (user) => {
+      mailer.resetVerify(user.name, user.email)
+      .then( (otp) => {
+        user.resetVerify = {'verify' : false, OTP : otp };
+        return user;
+      })
+      .catch( (err) => {
+        res.statusCode = 500;
+        res.json({success : false, error : err, message : 'Failed to send OTP to given email'});
+      });
+    })
+    .then((user) => {
+      if(user){
+        user.save( (err) => {
+          if(err) {
+            res.statusCode = 500;
+            res.json({success : false, error : err, message : 'Failed to update user with OTP'});
+          }else{
+            res.statusCode = 200;
+            res.json({success : true, message : 'OTP sended successfully'});
+          }
+        });
+      }else return
+    })
+    .catch( (err) => {
+      res.statusCode = 500;
+      res.json({success : false, error : err, message : 'No such User found'});
+    });
+    
 });
 
 
