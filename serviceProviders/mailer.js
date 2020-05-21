@@ -56,13 +56,13 @@ exports.resetVerify = function(user, mail){
                     reject(err);
                 }else{
                     transporter.sendMail({
-                        from: '"FCS OTP Verifier" <mail@fcs.net.in>', // sender address
+                        from: '"FCS Reset OTP" <mail@fcs.net.in>', // sender address
                         to: mail, // list of receivers
                         subject: process.env.APP_NAME+" : email verification", // Subject line
                         html: data, // html body
                     } ,(err) => {
                         if(err){
-                            reject(err);
+                            reject(err+'dd');
                         }else{
                             resolve(otp);
                         }
