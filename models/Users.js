@@ -81,10 +81,8 @@ const userSchema = new Schema({
     emailVerify : {
         type : emailVerification,
     },
-    emailOTP : {
-        type : Number,
-        min : 1000,
-        max : 9999
+    resetVerify : {
+        type : emailVerification,
     },
     skills : [{
         type : mongoose.Schema.Types.ObjectId,
