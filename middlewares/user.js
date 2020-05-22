@@ -8,7 +8,10 @@ const bcrypt = require('bcrypt');
 var config = require('../config/auth');
 
 
-exports.local = passport.use(new LocalStrategy(User.authenticate()));
+exports.local = passport.use(new LocalStrategy({
+    usernameField : 'phone'
+
+},User.authenticate()));
 
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());

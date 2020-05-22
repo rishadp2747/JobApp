@@ -56,3 +56,21 @@ exports.verifyReset = (userId) => {
 }
 
 
+exports.verifyPhone = (userId) => {
+    return new Promise((resolve, reject) => {
+        user.findOne({'_id' : userId, phoneVerify : true},(err,user) => {
+            console.log('1');
+            if(err){
+                console.log('2');
+                return reject({status: false, info :'Phone number not verified yet'});
+            }
+            if(user) {
+                console.log('3');
+                return resolve({status :true, info :  'Phone number verified'})
+            }else{
+                console.log('4');
+                return reject({status: false, info :'Phone number not verified yet'});
+            }
+        });
+    });
+};

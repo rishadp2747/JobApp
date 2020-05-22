@@ -67,10 +67,13 @@ const userSchema = new Schema({
     },
     phone: {
         type: mongoose.SchemaTypes.Phone,
-        required: true,
+        required: [true, 'Phone number is required'],
+        unique : true,
         allowedNumberTypes: [mongooseTypePhone.PhoneNumberType.MOBILE],
-        phoneNumberFormat: mongooseTypePhone.PhoneNumberFormat.INTERNATIONAL,
-        defaultRegion: 'IND',
+    },
+    phoneVerify : {
+        type : Boolean,
+        default : true,
     },
     email : {
         type : mongoose.SchemaTypes.Email,
@@ -98,7 +101,9 @@ const userSchema = new Schema({
     timestamps : true
 });
 
-userSchema.plugin(passportLocalMongoose);
+userSchema.plugin(passportLocalMongoose, {
+    usernameField: 'phone'
+  });
 userSchema.methods.comparePassword = function(password, callBack) {
     bcrypt.compare(password, t, function(err, isMatch) {
         console.log(err);

@@ -27,14 +27,12 @@ router.post('/register', (req, res, next) => {
     });
   }else{
     User.register( new User({
-      username  : req.body.username,
       name  :     req.body.name,
       age :       req.body.age,
       sex :       req.body.sex,
       location :  req.body.location,
       phone :     req.body.phone,
       email :     req.body.email,
-      password : req.body.password
     }), req.body.password)
     .then((user) =>{
       //send verification otp to mail
@@ -166,37 +164,6 @@ router.post('/email_otp/verify', (req, res, next) => {
     });
 });
 
-/*
-router.post('/login', passport.authenticate('local'), (req, res) => {
-  var token = authenticate.getToken({__id: req.user._id});
-  verify.verifyEmail(req.user._id)
-    .then( (user) => {
-      res.statusCode = 200;
-      res.json({
-        success : true, 
-        data : {"token" : token, "emailVerify" : true, "verifyMessage" : "Email verified successfully"}, 
-        message : "Login Successfully"
-      });
-    }, (err) => {
-      res.statusCode = 200;
-      res.json({
-        success : true, 
-        data : {"token" : token, "emailVerify" : false, "verifyMessage" : err}, 
-        message : "Login Successfully"
-      });
-      
-    })
-    .catch( (err) => {
-      res.statusCode = 200;
-      res.json({
-        success : true, 
-        data : {"token" : token, "emailVerify" : false, "verifyMessage" : err}, 
-        message : "Login Successfully"
-      });
-    });
-  
-});
-*/
 
 router.post("/login", function(req, res, next) {
   passport.authenticate("local", function(err, user, info) {
@@ -205,29 +172,32 @@ router.post("/login", function(req, res, next) {
     }
     if (user) {
       const token = authenticate.getToken({_id: user._id});
-      verify.verifyEmail(user._id)
-      .then( (vrUser) => {
-        res.statusCode = 200;
-        res.json({
-          success : true, 
-          data : {"token" : token, "emailVerify" : true, "verifyMessage" : "Email verified successfully"}, 
-          message : "Login Successfully"
+      verify.verifyPhone(user.id)
+        .then( (result) => {
+          console.log(result);
+          res.statusCode = 200;
+          res.json ({
+            success : true,
+            data : {
+              "token" : token,
+              "phoneVerify" : result.status,
+              "info"  : result.info
+            },
+            message : "Successfully logged in"
+          });
+        }, (err) => {
+          console.log(err);
+          res.statusCode = 200;
+          res.json ({
+            success : true,
+            data : {
+              "token" : token,
+              "phoneVerify" : err.status,
+              "info"  : err.info
+            },
+            message : "Successfully logged in"
+          });
         });
-      },(err) => {
-        res.statusCode = 200;
-        res.json({
-          success : true, 
-          data : {"token" : token, "emailVerify" : false, "verifyMessage" : err}, 
-          message : "Login Successfully"
-        });
-      }).catch( (err) => {
-        res.statusCode = 200;
-        res.json({
-          success : true, 
-          data : {"token" : token, "emailVerify" : false, "verifyMessage" : err}, 
-          message : "Login Successfully"
-        });
-      });
     } else {
       res.statusCode = 401;
       res.json({
