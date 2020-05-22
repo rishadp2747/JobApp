@@ -67,7 +67,7 @@ const userSchema = new Schema({
     },
     phone: {
         type: mongoose.SchemaTypes.Phone,
-        required: [true, 'Phone number is required'],
+        required: [true, 'Not a valid phone number'],
         unique : true,
         allowedNumberTypes: [mongooseTypePhone.PhoneNumberType.MOBILE],
     },

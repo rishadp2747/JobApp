@@ -35,32 +35,23 @@ router.post('/register', (req, res, next) => {
       email :     req.body.email,
     }), req.body.password)
     .then((user) =>{
-      //send verification otp to mail
-      mailer.emailVerifier(req.body.name, req.body.email, (err, result) => {
-        if(err){
-          return next(err);
-        }else{
-          user.emailVerify = {verify : false, OTP : result}
-          user.save( (err) => {
-            if(err)
-              return next(err);
-          });
-        }
-      });
+      //to send otp to phone phase2
+      return user;
     })
     .then(() => {
       passport.authenticate('local')(req, res, () => {
         var token = authenticate.getToken({__id: req.user._id});
         res.statusCode = 200;
         res.json({
-          success: true, 
-          token : token,
+          success: true,
+          data : {
+            "token" : token,
+          }, 
           status: 'Registration Successful!'
         });
       });
     })
     .catch( (err) => {
-      console.log(err);
       res.statusCode = 500;
       res.json({
         success : false, 
