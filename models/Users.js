@@ -2,7 +2,7 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var passportLocalMongoose = require('passport-local-mongoose');
 var mongooseTypePhone = require('mongoose-type-phone');
- 
+const bcrypt = require('bcrypt');
 
 require('mongoose-type-email');
 
@@ -99,6 +99,12 @@ const userSchema = new Schema({
 });
 
 userSchema.plugin(passportLocalMongoose);
-
+userSchema.methods.comparePassword = function(password, callBack) {
+    bcrypt.compare(password, t, function(err, isMatch) {
+        console.log(err);
+        console.log(isMatch);
+       return callBack(err, isMatch);
+    });
+};
 
 module.exports = mongoose.model('User', userSchema);

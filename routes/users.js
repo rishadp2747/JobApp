@@ -33,7 +33,8 @@ router.post('/register', (req, res, next) => {
       sex :       req.body.sex,
       location :  req.body.location,
       phone :     req.body.phone,
-      email :     req.body.email
+      email :     req.body.email,
+      password : req.body.password
     }), req.body.password)
     .then((user) =>{
       //send verification otp to mail
@@ -165,17 +166,80 @@ router.post('/email_otp/verify', (req, res, next) => {
     });
 });
 
-
+/*
 router.post('/login', passport.authenticate('local'), (req, res) => {
   var token = authenticate.getToken({__id: req.user._id});
-  res.statusCode = 200;
-  res.setHeader('Content-Type', 'application/json');
-  res.json({
-    success : true, 
-    data : {"token" : token}, 
-    message : "Login Successfully"
-  });
+  verify.verifyEmail(req.user._id)
+    .then( (user) => {
+      res.statusCode = 200;
+      res.json({
+        success : true, 
+        data : {"token" : token, "emailVerify" : true, "verifyMessage" : "Email verified successfully"}, 
+        message : "Login Successfully"
+      });
+    }, (err) => {
+      res.statusCode = 200;
+      res.json({
+        success : true, 
+        data : {"token" : token, "emailVerify" : false, "verifyMessage" : err}, 
+        message : "Login Successfully"
+      });
+      
+    })
+    .catch( (err) => {
+      res.statusCode = 200;
+      res.json({
+        success : true, 
+        data : {"token" : token, "emailVerify" : false, "verifyMessage" : err}, 
+        message : "Login Successfully"
+      });
+    });
+  
 });
+*/
+
+router.post("/login", function(req, res, next) {
+  passport.authenticate("local", function(err, user, info) {
+    if (err) {
+      return next(err);
+    }
+    if (user) {
+      const token = authenticate.getToken({_id: user._id});
+      verify.verifyEmail(user._id)
+      .then( (vrUser) => {
+        res.statusCode = 200;
+        res.json({
+          success : true, 
+          data : {"token" : token, "emailVerify" : true, "verifyMessage" : "Email verified successfully"}, 
+          message : "Login Successfully"
+        });
+      },(err) => {
+        res.statusCode = 200;
+        res.json({
+          success : true, 
+          data : {"token" : token, "emailVerify" : false, "verifyMessage" : err}, 
+          message : "Login Successfully"
+        });
+      }).catch( (err) => {
+        res.statusCode = 200;
+        res.json({
+          success : true, 
+          data : {"token" : token, "emailVerify" : false, "verifyMessage" : err}, 
+          message : "Login Successfully"
+        });
+      });
+    } else {
+      res.statusCode = 401;
+      res.json({
+        success : false, 
+        err : info.name, 
+        message : info.message 
+      });
+    }
+  })(req, res, next);
+
+});
+
 
 
 router.post('/reset_password/email/otp',(req,res,next) => {

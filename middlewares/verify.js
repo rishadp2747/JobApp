@@ -17,14 +17,20 @@ exports.verifyEmail = (userId) => {
     return new Promise( (resolve, reject) => {
         user.findOne({'_id' : userId})
         .then( (user) => {
-            if(user.verifyEmail.verify){
-                return resolve(user)
+            if(user){
+                if(user.emailVerify.verify){
+                    return resolve(user)
+                }else{
+                    return reject("Email not verified yet");
+                    
+                }
             }else{
-                return reject(new Error('Email not verified Yet'));
+                return reject("No such user found");
             }
+            
         })
         .catch( (err) =>{
-            return reject(new Error('No such user found'));
+            return reject("Failed to find user from database");
         })
     });
 }
