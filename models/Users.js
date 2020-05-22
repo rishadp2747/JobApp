@@ -2,7 +2,7 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var passportLocalMongoose = require('passport-local-mongoose');
 var mongooseTypePhone = require('mongoose-type-phone');
-const bcrypt = require('bcrypt');
+var beautifyUnique = require('mongoose-beautiful-unique-validation');
 
 require('mongoose-type-email');
 
@@ -47,6 +47,13 @@ const userSchema = new Schema({
     age : {
         type : Number,
         required : true,
+        validate: {
+            validator: function(value) {
+                if(!Number.isInteger(value))
+                    return false;
+            },
+            message: props => `${props.value} is not a valid age!`
+        }
     },
     sex : {
         type : String,
@@ -78,13 +85,7 @@ const userSchema = new Schema({
     email : {
         type : mongoose.SchemaTypes.Email,
         required : true,
-        unique : true
-    },
-    emailVerify : {
-        type : emailVerification,
-    },
-    resetVerify : {
-        type : emailVerification,
+        unique: 'Two users cannot share the same username ({VALUE})'
     },
     skills : [{
         type : mongoose.Schema.Types.ObjectId,
@@ -101,15 +102,12 @@ const userSchema = new Schema({
     timestamps : true
 });
 
+userSchema.plugin(beautifyUnique);
 userSchema.plugin(passportLocalMongoose, {
     usernameField: 'phone'
   });
-userSchema.methods.comparePassword = function(password, callBack) {
-    bcrypt.compare(password, t, function(err, isMatch) {
-        console.log(err);
-        console.log(isMatch);
-       return callBack(err, isMatch);
-    });
-};
+
+
+  
 
 module.exports = mongoose.model('User', userSchema);

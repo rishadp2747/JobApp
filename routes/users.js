@@ -1,15 +1,12 @@
 var express = require('express');
 const bodyParser = require('body-parser');
 
-var mailer = require('../serviceProviders/mailer');
-var otpTimeChecker = require('../serviceProviders/otpTimeChecker');
-
-
 var User = require('../models/Users');
 var passport = require('passport');
 
 var authenticate = require('../middlewares/user');
 var verify = require('../middlewares/verify');
+var validator = require('../middlewares/validator');
 
 var router = express.Router();
 
@@ -17,49 +14,73 @@ router.use(bodyParser.json());
 
 
 router.post('/register', (req, res, next) => {
-  if(!Number.isInteger(req.body.age)){
-    res.statusCode = 500;
-    res.setHeader('Content-Type', 'application/json');
-    res.json({
-      success : false, 
-      error : "Field Error", 
-      message : "Age field value is not a valid integer"
-    });
-  }else{
-    User.register( new User({
-      name  :     req.body.name,
-      age :       req.body.age,
-      sex :       req.body.sex,
-      location :  req.body.location,
-      phone :     req.body.phone,
-      email :     req.body.email,
-    }), req.body.password)
-    .then((user) =>{
-      //to send otp to phone phase2
-      return user;
-    })
-    .then(() => {
-      passport.authenticate('local')(req, res, () => {
-        var token = authenticate.getToken({__id: req.user._id});
-        res.statusCode = 200;
-        res.json({
-          success: true,
-          data : {
-            "token" : token,
-          }, 
-          status: 'Registration Successful!'
+
+  validator.passwordValidator(req.body.password)
+    .then( (result) => {
+      if(result){
+        User.register( new User({
+          name  :     req.body.name,
+          age :       req.body.age,
+          sex :       req.body.sex,
+          location :  req.body.location,
+          phone :     req.body.phone,
+          email :     req.body.email,
+        }), req.body.password)
+        .then( (user) => {
+          console.log('33434');
+          return verify.verifyPhone(user._id)
+        }, (err) => {
+          if(err.errors){
+            if(err.errors.email){
+              res.statusCode = 400;
+              res.json({
+                success : false, 
+                error : err.errors.email.name, 
+                message : err.errors.email.message
+              });
+            }
+          }else{
+            res.statusCode = 400;
+            res.json({
+              success : false, 
+              error : err.name, 
+              message : err.message
+            });
+          }
+        })
+        .then( (result) => {
+          if(result){
+            passport.authenticate('local')(req, res, () => {
+              var token = authenticate.getToken({__id: req.user._id});
+              res.statusCode = 200;
+              res.json({
+                success: true,
+                data : {
+                  "token" : token,
+                }, 
+                status: 'Registration Successful!'
+              });
+            });
+          }
         });
-      });
-    })
-    .catch( (err) => {
-      res.statusCode = 500;
+
+        
+      }
+    }, (err) => {
+      console.log('er'+ err);
+      res.statusCode = 400;
       res.json({
         success : false, 
-        error : err.name, 
-        message : err.message
+        error : err.err, 
+        message : err.info
       });
+    })
+    .catch((err) => {
+      console.log('434');
+      console.log(err);
+
     });
-  } 
+    
 });
 
 

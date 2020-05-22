@@ -63,9 +63,9 @@ exports.verifyPhone = (userId) => {
                 return reject({status: false, info :'Phone number not verified yet'});
             }
             if(user) {
-                return resolve({status :true, info :  'Phone number verified'})
+                return resolve({status :true, data: user, info :  'Phone number verified'})
             }else{
-                return reject({status: false, info :'Phone number not verified yet'});
+                return reject({status: false, err: 'VerificationError', info :'Phone number not verified yet'});
             }
         });
     });

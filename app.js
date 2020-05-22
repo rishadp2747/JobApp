@@ -18,12 +18,15 @@ var adminsRouter = require('./routes/admins');
 var dbConfig = require('./config/database');
 
 //To establish connection to database
-const connect = mongoose.connect(dbConfig.mongoUrl+dbConfig.dbName);
+const connect = mongoose.connect(dbConfig.mongoUrl+dbConfig.dbName,{ useNewUrlParser: true ,  useUnifiedTopology: true });
 connect.then( (db) => {
   console.log('Success! - Successfully connected to database');
 }, (err) => {
   console.log('Failed! - Error while connecting to db  - '+err);
-})
+});
+mongoose.set('useNewUrlParser', true);
+mongoose.set('useFindAndModify', false);
+mongoose.set('useCreateIndex', true);
 
 
 var app = express();
