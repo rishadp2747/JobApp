@@ -249,7 +249,7 @@ router.post('/reset_password/email/verify', (req, res, next) => {
 });
 
 
-//to reset the password
+//to reset the password - can only reset password if the user verify to reset using email OTP
 router.put('/reset_password/:userId', (req, res, next) => {
   verify.verifyReset(req.params.userId)
     .then( (user) => {

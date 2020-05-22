@@ -1,10 +1,12 @@
 const nodemailer = require("nodemailer");
+const dotenv = require('dotenv');
+dotenv.config();
 
 module.exports = nodemailer.createTransport({
-    host: 'smtp.sendgrid.net',
+    host: process.env.MAIL_HOST,
     port: 587,
     auth: {
-        user: 'apikey',
-        pass: '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'
+        user: process.env.MAIL_USERNAME,
+        pass: process.env.MAIL_PASSWORD
     }
   });
