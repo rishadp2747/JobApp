@@ -2,6 +2,20 @@ var express = require('express');
 var router = express.Router();
 var bodyParser = require('body-parser');
 
+
+var authenticate = require('../middlewares/user');
+
+var radius = require('../serviceProviders/distance');
+
+const jobsRouter = express.Router();
+jobsRouter.use(bodyParser.json());
+
+jobsRouter.route('/')
+    .get( authenticate.verifyUser, (req, res, next) => {
+        radius.distanceFinder();
+    });
+
+    /*
 /* for /jobs */
 router
 /* To list all the jobs present in the server */
@@ -60,4 +74,4 @@ router
      	);
 });
 
-module.exports = router;
+module.exports = jobsRouter;

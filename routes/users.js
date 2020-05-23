@@ -12,77 +12,33 @@ var router = express.Router();
 
 router.use(bodyParser.json());
 
-
 router.post('/register', (req, res, next) => {
+  passport.authenticate('userRegister', (err, user, info) => {
+    if(err) {
+      console.log('34');
+      return next(err)
+    }
 
-  validator.passwordValidator(req.body.password)
-    .then( (result) => {
-      if(result){
-        User.register( new User({
-          name  :     req.body.name,
-          age :       req.body.age,
-          sex :       req.body.sex,
-          location :  req.body.location,
-          phone :     req.body.phone,
-          email :     req.body.email,
-        }), req.body.password)
-        .then( (user) => {
-          console.log('33434');
-          return verify.verifyPhone(user._id)
-        }, (err) => {
-          if(err.errors){
-            if(err.errors.email){
-              res.statusCode = 400;
-              res.json({
-                success : false, 
-                error : err.errors.email.name, 
-                message : err.errors.email.message
-              });
-            }
-          }else{
-            res.statusCode = 400;
-            res.json({
-              success : false, 
-              error : err.name, 
-              message : err.message
-            });
-          }
-        })
-        .then( (result) => {
-          if(result){
-            passport.authenticate('local')(req, res, () => {
-              var token = authenticate.getToken({__id: req.user._id});
-              res.statusCode = 200;
-              res.json({
-                success: true,
-                data : {
-                  "token" : token,
-                }, 
-                status: 'Registration Successful!'
-              });
-            });
-          }
-        });
-
-        
-      }
-    }, (err) => {
-      console.log('er'+ err);
+    if(user) {
+      const token = authenticate.getToken({_id: user._id});
+      res.statusCode = 201;
+      res.json({
+        success : true,
+        data    : {
+          "token" : token
+        },
+        message : "Successfully completed Registration"
+      });
+    }else{
       res.statusCode = 400;
       res.json({
-        success : false, 
-        error : err.err, 
-        message : err.info
+        success : false,
+        err     : 'ErrorFields or ValidationError',
+        message : info
       });
-    })
-    .catch((err) => {
-      console.log('434');
-      console.log(err);
-
-    });
-    
+    }
+    })(req, res, next);
 });
-
 
 router.post("/login", function(req, res, next) {
   passport.authenticate("local", function(err, user, info) {

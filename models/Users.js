@@ -3,9 +3,15 @@ var Schema = mongoose.Schema;
 var passportLocalMongoose = require('passport-local-mongoose');
 var mongooseTypePhone = require('mongoose-type-phone');
 var beautifyUnique = require('mongoose-beautiful-unique-validation');
-
+var bcrypt   = require('bcrypt');
 require('mongoose-type-email');
 
+
+mongoose.SchemaTypes.Email.defaults.message = 'Email address is invalid'
+ 
+// admin 5ec9778eb89b74423a02d2dd
+
+//
 
 const ratingSchema = new Schema({
     job : {
@@ -26,20 +32,12 @@ const ratingSchema = new Schema({
     }
 });
 
-const emailVerification = new Schema({
-    verify : {
-        type : Boolean,
-        default : false
-    },
-    OTP : {
-        type    : String,
-        maxlength : 4,
-    }
-},{
-    timestamps : true
-});
 
 const userSchema = new Schema({
+    password : {
+        type    :   String,
+        required    :   [true, 'Password field is required'],
+    },
     name : {
         type : String,
         required : true
@@ -57,14 +55,13 @@ const userSchema = new Schema({
     },
     sex : {
         type : String,
-        enum : ['male', 'female', 'others'],
-        default : 'male',
-        required : true
+        enum : {values : ['male', 'female', 'others'], message : 'Not a valid sex value'},
+        required : [true , 'Sex field is required'],
     },
     location : {
         type: {
             type: String, 
-            enum: ['Point'], 
+            enum: { values : ['Point'], message : 'Not a valid location type'}, 
             required: true
         },
         coordinates: {
@@ -75,7 +72,7 @@ const userSchema = new Schema({
     phone: {
         type: mongoose.SchemaTypes.Phone,
         required: [true, 'Not a valid phone number'],
-        unique : true,
+        unique : 'User with this phone number already exist ({VALUE})',
         allowedNumberTypes: [mongooseTypePhone.PhoneNumberType.MOBILE],
     },
     phoneVerify : {
@@ -84,8 +81,9 @@ const userSchema = new Schema({
     },
     email : {
         type : mongoose.SchemaTypes.Email,
-        required : true,
-        unique: 'Two users cannot share the same username ({VALUE})'
+        allowBlank : false,
+        required : [true, 'Email field is required'],
+        unique: 'User with this email is already exist ({VALUE})'
     },
     skills : [{
         type : mongoose.Schema.Types.ObjectId,
@@ -103,9 +101,16 @@ const userSchema = new Schema({
 });
 
 userSchema.plugin(beautifyUnique);
-userSchema.plugin(passportLocalMongoose, {
-    usernameField: 'phone'
-  });
+
+// generating a hash
+userSchema.methods.generateHash = function(password) {
+    return bcrypt.hashSync(password, bcrypt.genSaltSync(8), null);
+};
+
+// checks if password is valid
+userSchema.methods.validPassword = function(password) {
+    return bcrypt.compareSync(password, this.local.password);
+};
 
 
   
