@@ -1,60 +1,71 @@
 var express = require('express');
 var router = express.Router();
-var bodyParser = require('body-parser')
-router
+var bodyParser = require('body-parser');
 
-//to list all available skills
-.get('/',function(req,res,next){
-skills.find()
-  .then(function(doc){
-    res.json({success : true, data : doc , message : "Skills listed successfully"})
-  })
-  .catch((err)=>res.json({success : false ,data : err, message: "Skills listing failed"})
-  );
-})
-
-//to create new skill
-.post('/',function(req,res,next){
-  var item = req.body;
-var data = new skills(item);
-data.save()
-  .then(()=> res.json({success : true, message:"Skill successfully added"}))
-  .catch((err)=>res.json({success : false, data: err,message:"Skill adding failed"}));
-})
+var Skills = require('../models/Skills');
 
 
-//to get a particular skill
-.get('/:skillId',function(req,res,next){
-  skills.findById(req.params.skillId)
-    .then(function(doc){
-      res.json({success : true,data : doc,message : "skill listed successfully"})
+const skillsRouter = express.Router();
+
+skillsRouter.use(bodyParser.json());
+
+skillsRouter.route('/')
+.get((req,res,next) => {
+  Skills.find({},'_id title basicCharge hourlyCharge')
+    .then((skills) => {
+      res.statusCode = 200;
+      res.json({
+        success : true,
+        data    : skills,
+        message : "Successfully Listed all skills"
+      });
     })
-    .catch((err)=>
-      res.json({success : false,data : err,message: "skill listing failed" })
-    );
+    .catch( (err) =>{
+      res.statusCode = 500;
+      res.json({
+        success : false,
+        err     : err.name,
+        message : err.message 
+      });
+    });
 })
-
-//to update a particular skill
-.put('/:skillId',function(req,res,next){
-  var id = {_id : req.params.skillId};
-  skills.findByIdAndUpdate(id, req.body)
-  .then(function(doc){
-    res.json({success:true,data : doc ,message : "skill updated successfully"})
-  })
-  .catch((err)=>
-    res.json({success : false , data : err, message : "skill update failed"})
-  );
-})
-
-//to delete a particular skill
-.delete('/:skillId',function(req,res,next){
-  skills.findByIdAndDelete(req.params.skillId)
-  .then(function(doc){
-    res.json({success : true, data : doc , message : "Skill deleted successfully"})
-  })
-  .catch((err)=>
-    res.json({success : false , data : err , message : "skill deletion failed"})
-  )
+.post((req,res,next) => {
+  var skill = new Skills (req.body).save()
+    .then( (skill) => {
+      res.statusCode = 200;
+      res.json({
+        success : true,
+        message : "Successfully added new skill"
+      });
+    }, (err) => {
+      if(err.errors){
+        if(err.errors.createdBy){
+          res.statusCode = 400;
+          res.json({
+            success : false,
+            err     : err.errors.createdBy.name,
+            message : err.errors.createdBy.message
+          });
+        }
+      }else{
+        res.statusCode = 400;
+        res.json({
+          success : false,
+          err     : err.name,
+          message : err.message
+        });
+      }
+    })
+    .catch( (err) =>{
+      res.statusCode = 500;
+      res.json({
+        success : false,
+        err     : err.name,
+        message : err.message 
+      });
+    });
 });
 
-module.exports = router;
+
+
+module.exports = skillsRouter;

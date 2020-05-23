@@ -1,10 +1,13 @@
 var express = require('express');
 var router = express.Router();
 const bodyParser = require('body-parser');
-
-router.use(bodyParser.urlencoded({extended : false}))
 router.use(bodyParser.json());
 
+var Admin = require('../models/Admins');
+var passport = require('passport');
+
+
+var authenticate = require('../middlewares/admin');
 
 /* GET Admins listing. */
 router.get('/', function(req, res, next) {
@@ -28,10 +31,35 @@ router.get('/:adminId', function(req, res, next) {
 
 /*Admin signup*/
 router.post('/register', function(req, res, next) {
-  res.status(200).json({
-          success : true ,
-          data : 'processed data' ,
-          message : 'Got a post request from /admins/register , Request Successfully Completed'
+  Admin.register(new Admin({
+    username : req.body.username,
+    name     : req.body.name,
+    email    : req.body.email
+  }), req.body.password)
+  .then( (user) => {
+    passport.authenticate('local')(req,res, () => {
+      res.statusCode = 200;
+      res.json({
+        success : true, 
+        id  : req.user._id,
+        message: 'Registration Successful!'
+      });
+    });
+  }, (err) => {
+    res.statusCode = 400,
+    res.json({
+      success : false, 
+      err : err,
+      message: 'Registration failed!'
+    });
+  })
+  .catch( (err) => {
+    console.log(err);
+    res.statusCode = 500,
+    res.json({
+      success : false, 
+      message: err
+    });
   });
 });
 

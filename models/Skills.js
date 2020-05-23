@@ -1,23 +1,24 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
+var idvalidator = require('mongoose-id-validator');
 
 
 
 /* Defining the Schema for Skills model */
-const SkillSchema = new Schema({
+const skillSchema = new Schema({
     title          : { 
                      type : String, 
                      required:true
                      },
-    basic_charge   : { 
+    basicCharge   : { 
                      type : Number, 
                      required:true
                      },
-    hourly_charge  : { 
+    hourlyCharge  : { 
                      type : Number, 
                      required:true
                      },
-    created_by     : { 
+    createdBy     : { 
                      type : mongoose.Schema.Types.ObjectId,
                      ref: "Admin"
                      }
@@ -25,4 +26,7 @@ const SkillSchema = new Schema({
     { timestamps : true });
 
 /* Creating the Skills model */
-module.exports =  mongoose.model('Skill', SkillSchema);
+skillSchema.plugin(idvalidator, {
+    message : 'Invalid Admin who are you',
+  });
+module.exports =  mongoose.model('Skill', skillSchema);
