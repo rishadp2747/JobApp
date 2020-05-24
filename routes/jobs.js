@@ -26,16 +26,68 @@ jobsRouter.use(bodyParser.json());
 
 
 
-jobsRouter.route('/request')
-    .post((req, res, next) => {
+jobsRouter.route('/request/:jobId')
+    .get((req, res, next) => {
+        passport.authenticate('jwt', {session : false}, (err, user) => {
+            if(user){
+                verify.jobOwner(req.params.jobId, user._id)
+                    .then((result) => {
+                        if(result){
+                            return Job.findOne({'_id' : req.params.jobId},'requests').populate('requests','name, skill, age, sex, phone, email, rating, location')
+                        }
+                    }, (err) => {
+                        res.statusCode = 401;
+                        res.json({
+                            success : false,
+                            error : err.err,
+                            message : err.info
+                        });
+                    })
+                    .then((job) => {
+                        if(job){
+                            res.statusCode = 200;
+                            res.json({
+                                success : true, 
+                                data    : job,
+                                success :   'Successfully listed the requested users'
+                            });
+                        }
+                    }, (err) => {
+                        if(err){
+                            res.statusCode = 500;
+                            res.json({
+                                success : false,
+                                error : err.name,
+                                message : err.message,
+                            })
+                        }
+                    });
+            }
+            if(err){
+                res.statusCode = 500;
+                res.json({
+                    success : false,
+                    error   :   err.name,
+                    message : err.message
+                });
+            }
+            if(!user){
+                res.statusCode = 401;
+                res.json({
+                    success : false,
+                    error : 'TokenError',
+                    message : 'Authorization failed'
+                });
+            }
+        })(req, res, next);
+    })
+    .put((req, res, next) => {
         passport.authenticate('jwt', { session: false }, (err, user) => {
             if(user){
-                console.log('1');
                 verify.verifyPhone(user._id)
                 .then( (result) => {
-                    console.log('2');
                     if(result.status) {
-                        return verify.jobStatus(req.body.jobId);
+                        return verify.jobStatus(req.params.jobId);
                     }
                 }, (err) => {
                     if(!err.status){
@@ -47,10 +99,23 @@ jobsRouter.route('/request')
                         });
                     }
                 })
+                .then( (job) =>{
+                    if(job){
+                        return verify.verifySkill(req.params.jobId, user._id);
+                    }
+                }, (err) => {
+                    if(!err.status){
+                        res.statusCode = 400;
+                        res.json({
+                            success : false,
+                            error   :  err.err,
+                            message     : err.info
+                        });
+                    }
+                })
                 .then( (job) => {
                     if(job){
-                        console.log('45');
-                        return Job.findOne({'_id' : req.body.jobId})
+                        return Job.findOne({'_id' : req.params.jobId})
                     }
                 }, (err) => {
                     if(!err.status){
@@ -188,6 +253,7 @@ jobsRouter.route('/')
                 if(result){
 
                     var job = new Job(req.body);
+                    job.postedBy = user._id;
                     job.save()
                         .then(() => {
                             res.statusCode = 201;
