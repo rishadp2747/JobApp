@@ -5,11 +5,11 @@ var bodyParser = require('body-parser');
 
 
 var authenticate = require('../middlewares/user');
+var verify       =  require('../middlewares/verify'); 
 
 var User = require('../models/Users');
 var Job  =  require('../models/Jobs');
 
-var radius = require('../serviceProviders/distance');
 
 const jobsRouter = express.Router();
 jobsRouter.use(bodyParser.json());
@@ -65,15 +65,43 @@ jobsRouter.route('/')
             });
             
     })
-    .post(function(req, res, next) {
-        var item = req.body;
-        var data = new Job(item);
-        data.save()
-            .then(()=> res.json({success : true, message : "Job Successfully added"}))
-            .catch((err) => 
-                res.json({success : false, data : err, message : "Job Adding Failed"})
-                );
+    .post( authenticate.verifyUser,(req, res, next) =>  {
+
+        verify.verifyPhone(req.user._id)
+            .then( (result) => {
+                if(result){
+
+                    var job = new Job(req.body);
+                    job.save()
+                        .then(() => {
+                            res.statusCode = 201;
+                            res.json({
+                                success : true,
+                                message :   "Successfully posted the job"
+                            });
+                        }, (err) => {
+                            res.statusCode = 400;
+                            res.json({
+                                success :   false,
+                                error   :   err.name,
+                                message :   err.message 
+                            });
+                        });
+
+                }
+            }, (err) => {
+                if(err){
+                    res.statusCode = 401;
+                    res.json({
+                        success : false,
+                        error   : err.err,
+                        message :   err.info
+                    })
+                }
+            });
         });
+
+        
 
     
 

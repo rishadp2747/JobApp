@@ -62,7 +62,8 @@ const jobSchema = new Schema({
     },
     skill : { 
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Skill'
+        ref: 'Skill',
+        required : [true, 'What type skills required for this job']
     },
     status : {
         type: String,
@@ -71,7 +72,8 @@ const jobSchema = new Schema({
     },
     postedBy : {
         type: mongoose.Schema.Types.ObjectId, 
-        ref: 'User' 
+        ref: 'User' ,
+        required : [true, 'Who is posting this job']
     },
     commitedBy : { 
         type: mongoose.Schema.Types.ObjectId,
