@@ -1,21 +1,116 @@
 var express = require('express');
 var router = express.Router();
 var bodyParser = require('body-parser');
+var passport = require('passport');
 
 
 
-var authenticate = require('../middlewares/user');
+var user = require('../middlewares/user');
 var verify       =  require('../middlewares/verify'); 
 
 var User = require('../models/Users');
 var Job  =  require('../models/Jobs');
 
 
-const jobsRouter = express.Router();
+
+var router = express.Router();
+
+router.use(bodyParser.json());
+
+
+
+
+var jobsRouter = express.Router();
+
 jobsRouter.use(bodyParser.json());
 
+
+
+jobsRouter.route('/request')
+    .post((req, res, next) => {
+        passport.authenticate('jwt', { session: false }, (err, user) => {
+            if(user){
+                console.log('1');
+                verify.verifyPhone(user._id)
+                .then( (result) => {
+                    console.log('2');
+                    if(result.status) {
+                        return verify.jobStatus(req.body.jobId);
+                    }
+                }, (err) => {
+                    if(!err.status){
+                        res.statusCode = 401;
+                        res.json({
+                            success : false,
+                            error   :  err.err,
+                            message     : err.info
+                        });
+                    }
+                })
+                .then( (job) => {
+                    if(job){
+                        console.log('45');
+                        return Job.findOne({'_id' : req.body.jobId})
+                    }
+                }, (err) => {
+                    if(!err.status){
+                        res.statusCode = 400;
+                        res.json({
+                            success : false,
+                            error   :  err.err,
+                            message     : err.info
+                        });
+                    }
+                })
+                .then( (job) => {
+                    if(job){
+                        job.requests.push(user._id);
+                        job.save( (err) => {
+                            if(err){
+                                res.statusCode = 500;
+                                res.json({
+                                    success : false,
+                                    error : err.name,
+                                    message :   err.message
+                                });
+                            }else{
+                                res.statusCode = 200;
+                                res.json({
+                                    success : true,
+                                    data    :  job,
+                                    message : 'Requested Successfully'
+                                });
+                            }
+                        });
+                    }
+                });
+            }
+            if(err){
+                res.statusCode = 500;
+                res.json({
+                    success : false,
+                    error   :   err.name,
+                    message : err.message
+                });
+            }
+            if(!user){
+                res.statusCode = 401;
+                res.json({
+                    success : false,
+                    error : 'TokenError',
+                    message : 'Authorization failed'
+                });
+            }
+
+        })(req, res, next);
+
+       
+    })
+
+
+
 jobsRouter.route('/')
-    .get( authenticate.verifyUser, (req, res, next) => {
+    .get(  (req, res, next) => {
         User.findOne({'_id' : req.user._id})
             .then( (user) => {
                 userCoordinates = user.location.coordinates;
@@ -65,8 +160,7 @@ jobsRouter.route('/')
             });
             
     })
-    .post( authenticate.verifyUser,(req, res, next) =>  {
-
+    .post( user.verifyUser,(req, res, next) =>  {
         verify.verifyPhone(req.user._id)
             .then( (result) => {
                 if(result){
@@ -99,10 +193,10 @@ jobsRouter.route('/')
                     })
                 }
             });
-        });
+    });
 
-        
-
+   
+*/
     
 
 

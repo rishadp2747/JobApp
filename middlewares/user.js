@@ -88,12 +88,26 @@ exports.getToken = function(user) {
     });
 };
 
+
+passport.serializeUser(function(user, done) {
+    done(null, user.id);
+});
+    
+passport.deserializeUser(function(id, done) {
+    User.findById(id, function(err, user) {
+        done(err, user);
+    });
+});
+
 var opts = {};
 opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
+
 opts.secretOrKey = config.secretKey;
+
 
 exports.jwtPassport = passport.use(new JwtStrategy(opts,
     (jwt_payload, done) => {
+        console.log(jwt_payload);
         User.findOne({_id: jwt_payload._id}, (err, user) => {
             if (err) {
                 return done(err, false);
@@ -108,4 +122,3 @@ exports.jwtPassport = passport.use(new JwtStrategy(opts,
     }));
 
 
-exports.verifyUser = passport.authenticate('jwt', {session : false}); //no session used 

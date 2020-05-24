@@ -1,59 +1,5 @@
 var user = require('../models/Users');
-var ObjectId = require('mongodb').ObjectId; 
-
-exports.checkEmail = (email) => {
-    return new Promise((resolve, reject) => {
-        user.findOne({'email' : email})
-        .then( (user) => {
-            return resolve(user);
-        })
-        .catch( (err) => {
-            return reject(new Error ('No such user'));
-        })
-    });
-}
-
-exports.verifyEmail = (userId) => {
-    return new Promise( (resolve, reject) => {
-        user.findOne({'_id' : userId})
-        .then( (user) => {
-            if(user){
-                if(user.emailVerify.verify){
-                    return resolve(user)
-                }else{
-                    return reject("Email not verified yet");
-                    
-                }
-            }else{
-                return reject("No such user found");
-            }
-            
-        })
-        .catch( (err) =>{
-            return reject("Failed to find user from database");
-        })
-    });
-}
-
-exports.verifyReset = (userId) => {
-    return new Promise( (resolve, reject) => {
-        user.findOne({ 'resetVerify._id' : userId})
-        .then( (user) => {
-            if(user){
-                if(user.resetVerify.verify == true){
-                    return resolve(user)
-                }else{
-                    return reject('User not verified yet for resetting password');
-                }
-            }else{
-                return reject("No such user found");
-            }
-        })
-        .catch( (err) =>{
-            return reject("No such user found");
-        })
-    });
-}
+var job =   require('../models/Jobs');
 
 
 exports.verifyPhone = (userId) => {
@@ -70,3 +16,21 @@ exports.verifyPhone = (userId) => {
         });
     });
 };
+
+
+exports.jobStatus = (jobId) => {
+    return new Promise((resolve, reject) => {
+        console.log(jobId);
+        job.findOne({'_id' : jobId}, (err,job) => {
+            if(err){
+                return reject({status : false, err: 'JobError', info : 'No such job found'});
+            }
+            if(job) {
+    
+                return resolve({status : true, data : job, info : 'Active job'})
+            }else{
+                return reject({status : false, err : 'ValidationError', info : 'This job is not active'})
+            }
+        });
+    });
+}
