@@ -38,8 +38,6 @@ exports.jobStatus = (jobId) => {
 exports.jobOwner = (jobId, userId) => {
     return new Promise( (resolve, reject) => {
         job.findOne({'_id' : jobId, 'postedBy' : userId}, (err, job) => {
-            console.log(jobId)
-            console.log(userId)
             if(err){
                 return reject({status : false, err: 'JobError', info : 'No such job found'});
             }
@@ -77,4 +75,5 @@ exports.verifySkill = (jobId, userId) => {
             }
         });
     });
-}
+};
+

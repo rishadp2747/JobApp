@@ -33,7 +33,7 @@ jobsRouter.route('/request/:jobId')
                 verify.jobOwner(req.params.jobId, user._id)
                     .then((result) => {
                         if(result){
-                            return Job.findOne({'_id' : req.params.jobId},'requests').populate('requests','name, skill, age, sex, phone, email, rating, location')
+                            return Job.findOne({'_id' : req.params.jobId},'requests').populate('requests','name skill age sex phone email rating location')
                         }
                     }, (err) => {
                         res.statusCode = 401;
@@ -132,12 +132,24 @@ jobsRouter.route('/request/:jobId')
                         job.requests.push(user._id);
                         job.save( (err) => {
                             if(err){
-                                res.statusCode = 500;
-                                res.json({
-                                    success : false,
-                                    error : err.name,
-                                    message :   err.message
-                                });
+                                if(err.name === "ValidationError"){
+                                    res.statusCode = 400;
+                                    res.json({
+                                        success : false,
+                                        error : err.name,
+                                        message :  'You already requested for this job'
+                                    });  
+                                }else{
+                                    res.statusCode = 500;
+                                    res.json({
+                                        success : false,
+                                        error : err.name,
+                                        message :   err.message
+                                    });
+
+                                }
+                                
+
                             }else{
                                 res.statusCode = 200;
                                 res.json({

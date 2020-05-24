@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Schema  = mongoose.Schema;
-
+const arrayUniquePlugin = require('mongoose-unique-array');
+var beautifyUnique = require('mongoose-beautiful-unique-validation');
 
 const TimeSchema = new Schema({
     hr: {
@@ -81,12 +82,14 @@ const jobSchema = new Schema({
     },
     requests : [{ 
         type : mongoose.Schema.Types.ObjectId,
-        ref: 'User' 
+        ref: 'User', 
+        unique :'You already requested for this job'
     }]
     
 },{
     timestamps : true
 });
 
-
+jobSchema.plugin(beautifyUnique);
+jobSchema.plugin(arrayUniquePlugin);
 module.exports = mongoose.model('Job', jobSchema);
