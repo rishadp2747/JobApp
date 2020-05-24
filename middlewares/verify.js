@@ -60,7 +60,7 @@ exports.verifyPhone = (userId) => {
     return new Promise((resolve, reject) => {
         user.findOne({'_id' : userId, phoneVerify : true},(err,user) => {
             if(err){
-                return reject({status: false, info :'Phone number not verified yet'});
+                return reject({status: false, err: 'USerError', info :'Phone number not verified yet'});
             }
             if(user) {
                 return resolve({status :true, data: user, info :  'Phone number verified'})

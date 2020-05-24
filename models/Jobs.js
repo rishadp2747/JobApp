@@ -28,7 +28,7 @@ const TimeSchema = new Schema({
     }
 });
 
-const JobSchema = new Schema({
+const jobSchema = new Schema({
 
     title : {
         type : String,
@@ -40,22 +40,22 @@ const JobSchema = new Schema({
         required : true
         
     },
-    date_from : {
+    dateFrom : {
         type : Date, 
         required : true
         
     },
-    date_to : {
+    dateTo : {
         type : Date, 
         required : true
         
     },
-    time_from : {
+    timeFrom : {
         type : TimeSchema, 
         required : true
         
     },
-    time_to : {
+    timeTo : {
         type : TimeSchema, 
         required : true
         
@@ -69,11 +69,11 @@ const JobSchema = new Schema({
         enum : ['active', 'pending', 'commit', 'completed', 'rejected'],
         default: 'active'
     },
-    posted_by : {
+    postedBy : {
         type: mongoose.Schema.Types.ObjectId, 
         ref: 'User' 
     },
-    commited_by : { 
+    commitedBy : { 
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User' 
     },
@@ -86,4 +86,5 @@ const JobSchema = new Schema({
     timestamps : true
 });
 
-module.exports = mongoose.model('Job', JobSchema);
+
+module.exports = mongoose.model('Job', jobSchema);
