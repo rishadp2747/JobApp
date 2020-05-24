@@ -111,57 +111,79 @@ jobsRouter.route('/request')
 
 jobsRouter.route('/')
     .get(  (req, res, next) => {
-        User.findOne({'_id' : req.user._id})
-            .then( (user) => {
-                userCoordinates = user.location.coordinates;
-                return Job.find({},'title description dateFrom dateTo timeFrom timeTo skill status ').populate({
-                    path : 'postedBy',
-                    match: { 
-                                location:
-                                    { $near :
-                                        {
-                                        $geometry: { type: "Point",  coordinates: userCoordinates },
-                                        $minDistance: 0000,
-                                        $maxDistance: 5000
+        passport.authenticate('jwt', { session: false }, (err, user) => {
+            if(user){
+                User.findOne({'_id' : user._id})
+                .then( (user) => {
+                    userCoordinates = user.location.coordinates;
+                    return Job.find({},'title description dateFrom dateTo timeFrom timeTo skill status ').populate({
+                        path : 'postedBy',
+                        match: { 
+                                    location:
+                                        { $near :
+                                            {
+                                            $geometry: { type: "Point",  coordinates: userCoordinates },
+                                            $minDistance: 0000,
+                                            $maxDistance: 5000
 
+                                            }
                                         }
-                                    }
-                            },
-                    select: 'name phone email location'
+                                },
+                        select: 'name phone email location'
+                    });
+                }, (err) => {
+                    res.statusCode = 401;
+                    res.json({
+                        success : false,
+                        error   :   err.name,
+                        message : 'No such user found' 
+                    });
+                })
+                .then( (job) => {
+                    let filteredJobs = [];
+                    job.forEach((value, index) =>{
+                        if(value.postedBy != null){
+                            filteredJobs.push(value);
+                        }
+                    });
+                    res.statusCode = 200;
+                    res.json({
+                        success : true,
+                        data    : filteredJobs,
+                        message : "Successfully listed the jobs" 
+                    });
+                },(err) => {
+                    res.statusCode = 500;
+                    res.json({
+                        success : false,
+                        error   :   err.name,
+                        message : 'Failed to fetch the jobs' 
+                    });
                 });
-            }, (err) => {
-                res.statusCode = 401;
-                res.json({
-                    success : false,
-                    error   :   err.name,
-                    message : 'No such user found' 
-                });
-            })
-            .then( (job) => {
-                let filteredJobs = [];
-                job.forEach((value, index) =>{
-                    if(value.postedBy != null){
-                        filteredJobs.push(value);
-                    }
-                });
-                res.statusCode = 200;
-                res.json({
-                    success : true,
-                    data    : filteredJobs,
-                    message : "Successfully listed the jobs" 
-                });
-            },(err) => {
+
+            }
+            if(err){
                 res.statusCode = 500;
                 res.json({
                     success : false,
                     error   :   err.name,
-                    message : 'Failed to fetch the jobs' 
+                    message : err.message
                 });
-            });
-            
+            }
+            if(!user){
+                res.statusCode = 401;
+                res.json({
+                    success : false,
+                    error : 'TokenError',
+                    message : 'Authorization failed'
+                });
+            }
+        })(req, res, next);     
     })
-    .post( user.verifyUser,(req, res, next) =>  {
-        verify.verifyPhone(req.user._id)
+
+    .post((req, res, next) => {
+        passport.authenticate('jwt', {session : false}, (err, user) => {
+            verify.verifyPhone(user._id)
             .then( (result) => {
                 if(result){
 
@@ -193,10 +215,12 @@ jobsRouter.route('/')
                     })
                 }
             });
+        })(req, res, next);
     });
 
+
    
-*/
+
     
 
 
