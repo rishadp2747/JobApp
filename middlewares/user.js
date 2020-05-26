@@ -5,7 +5,7 @@ var JwtStrategy = require('passport-jwt').Strategy;
 var ExtractJwt = require('passport-jwt').ExtractJwt;
 var jwt = require('jsonwebtoken');
 var config = require('../config/auth');
-
+var validator = require('./validator');
 
 
 /*
@@ -31,33 +31,47 @@ exports.userRegister = passport.use('userRegister', new LocalStrategy ({
             }
             if(user){
                return done(null, false, 'User with phone number already exist');
-            }else{     
-                var newUser = new User();
-                newUser.phone       = phone;
-                newUser.password    = newUser.generateHash(password);
-                newUser.email       = req.body.email;
-                newUser.location    = req.body.location;
-                newUser.age         = req.body.age;
-                newUser.name        = req.body.name;
-                newUser.sex         = req.body.sex;
-                if(req.body.skills){
-                    newUser.skills = req.body.skills;
-                    var error = newUser.validateSync();
-                    if(error){
-                        return done(null, false, "Not a valid skills set provided");
-                    }
-                }
-                newUser.save( (err) => {
-                    if(err){
-                        if(err.errors){
-                            if(err.errors.email){
-                                return done(null, false, err.errors.email.message);
+            }else{  
+                validator.passwordValidator(password)
+                .then( (result) => {
+                    if(result){
+                        var newUser = new User();
+                        newUser.phone       = phone;
+                        newUser.password    = newUser.generateHash(password);
+                        newUser.email       = req.body.email;
+                        newUser.location    = req.body.location;
+                        newUser.age         = req.body.age;
+                        newUser.name        = req.body.name;
+                        newUser.sex         = req.body.sex;
+                        if(req.body.skills){
+                            newUser.skills = req.body.skills;
+                            var error = newUser.validateSync();
+                            if(error){
+                                if(error.path == "skills"){
+                                    return done(null, false, "Not a valid skills set provided");
+                                }
                             }
+                            
                         }
-                        return done(null, false, err.message);
-                    }      
-                    return done(null, newUser);
-                });
+                        newUser.save( (err) => {
+                            if(err){
+                                if(err.errors){
+                                    if(err.errors.email){
+                                        return done(null, false, err.errors.email.message);
+                                    }
+                                }
+                                return done(null, false, err.message);
+                            }      
+                            return done(null, newUser);
+                        });
+                    }
+                }, (err) => {
+                    if(err) {
+                        return done(null, false, err.info);
+                    }
+                })
+                   
+               
             }
         });
     });

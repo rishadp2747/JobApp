@@ -73,7 +73,7 @@ const userSchema = new Schema({
         type: mongoose.SchemaTypes.Phone,
         required: [true, 'Not a valid phone number'],
         unique : 'User with this phone number already exist ({VALUE})',
-        allowedNumberTypes: [mongooseTypePhone.PhoneNumberType.MOBILE],
+        allowedNumberTypes: [mongooseTypePhone.PhoneNumberType.MOBILE, mongooseTypePhone.PhoneNumberType.FIXED_LINE_OR_MOBILE],
     },
     phoneVerify : {
         type : Boolean,

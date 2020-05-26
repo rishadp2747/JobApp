@@ -1,5 +1,5 @@
 var user = require('../models/Users');
-var job =   require('../models/Jobs');
+var Job =   require('../models/Jobs');
 
 
 exports.verifyPhone = (userId) => {
@@ -20,7 +20,7 @@ exports.verifyPhone = (userId) => {
 
 exports.jobStatus = (jobId) => {
     return new Promise((resolve, reject) => {
-        job.findOne({'_id' : jobId, 'status' : 'active'}, (err,job) => {
+        Job.findOne({'_id' : jobId, 'status' : 'active'}, (err,job) => {
             
             if(err){
                 return reject({status : false, err: 'JobError', info : 'No such job found'});
@@ -37,7 +37,7 @@ exports.jobStatus = (jobId) => {
 
 exports.jobOwner = (jobId, userId) => {
     return new Promise( (resolve, reject) => {
-        job.findOne({'_id' : jobId, 'postedBy' : userId}, (err, job) => {
+        Job.findOne({'_id' : jobId, 'postedBy' : userId}, (err, job) => {
             if(err){
                 return reject({status : false, err: 'JobError', info : 'No such job found'});
             }
@@ -54,7 +54,7 @@ exports.jobOwner = (jobId, userId) => {
 
 exports.verifySkill = (jobId, userId) => {
     return new Promise( (resolve, reject) => {
-        job.findOne({'_id' : jobId},'skill', (err, job) =>{
+        Job.findOne({'_id' : jobId},'skill', (err, job) =>{
             if(job){
                 user.findOne({'_id' : userId, 'skills' : job.skill}, (err, user) => {
                     if(err){
@@ -77,3 +77,21 @@ exports.verifySkill = (jobId, userId) => {
     });
 };
 
+
+
+exports.verifyRequest = (jobId, userId) => {
+
+    return new Promise( (resolve, reject) => {
+        Job.findOne({'_id' : jobId, 'request' : userId }, (err, job) => {
+            if(err) {
+                return reject({status : false, err : err.name, info : err.message});
+            }
+
+            if(job){
+                return resolve({status : true, data : job, info : 'Verified the request'})
+            }else{
+                return reject({status : false, err : 'ValidationError', infor : 'User not requested for this job or just cancelled the request'})
+            }
+        })
+    });
+}

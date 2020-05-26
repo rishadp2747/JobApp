@@ -25,6 +25,70 @@ var jobsRouter = express.Router();
 jobsRouter.use(bodyParser.json());
 
 
+jobsRouter.route('/commit/:userId')
+    .put((req, res, next) => {
+        passport.authenticate('jwt', {session : false}, (err, user) => {
+            if(user){
+                verify.jobOwner(req.body.jobId, user._id)
+                    .then( (job) =>{
+                        if(job){
+                            return verify.verifyRequest(req.body.jobId, req.params.userId)
+                        }
+                    }, (err) =>{
+                        if(err) {
+                            res.statusCode = 401;
+                            res.json({
+                                success : false,
+                                err :      err.err,
+                                message : err.info
+                            });
+                        }
+                    })
+                    .then( (job) => {
+                        if(job){
+                            return Job.updateOne({'_id' : req.body.jobId}, {'commitedBy' : req.params.userId})
+                        }
+                    }, (err) => {
+                        if(err){
+                            res.statusCode = 500,
+                            res.json({
+                                success : false,
+                                err : err.name,
+                                message :   err.message 
+                            });
+                        }
+                    })
+                    .then((result) =>{
+                        if(result.nModified == 1){
+                            res.statusCode = 200,
+                            res.json({
+                                success : true,
+                                message  : 'Successfully selected the user for this job'
+                            });
+                            
+                        }
+                    })
+
+            }
+        
+            if(err){
+                res.statusCode = 500;
+                res.json({
+                    success : false,
+                    error   :   err.name,
+                    message : err.message
+                });
+            }
+            if(!user){
+                res.statusCode = 401;
+                res.json({
+                    success : false,
+                    error : 'TokenError',
+                    message : 'Authorization failed'
+                });
+            }
+        })(req, res, next);
+    })
 
 jobsRouter.route('/request/:jobId')
     .get((req, res, next) => {
@@ -49,7 +113,7 @@ jobsRouter.route('/request/:jobId')
                             res.json({
                                 success : true, 
                                 data    : job,
-                                success :   'Successfully listed the requested users'
+                                message :   'Successfully listed the requested users'
                             });
                         }
                     }, (err) => {
@@ -180,8 +244,54 @@ jobsRouter.route('/request/:jobId')
             }
 
         })(req, res, next);
-
-       
+    })
+    .delete( (req, res, next) => {
+        passport.authenticate('jwt', { session: false }, (err, user) => {
+            if(user){
+                Job.updateOne({'_id' : req.params.jobId, requests : user._id},{ $pullAll: {requests: [user._id] }})
+                    .then( (job) => {
+                        if(job.nModified == 1){
+                            res.statusCode = 200;
+                            res.json({
+                                success : false,
+                                message : 'Successfully removed your request for this job'
+                            });
+                        }else{
+                            res.statusCode = 400;
+                            res.json({
+                                success : false,
+                                error   : 'ValidationError',
+                                message : 'You are not requested for this Job or already deleted your request'
+                            });
+                        }
+                    }, (err) =>{
+                        if(err){
+                            res.statusCode = 400;
+                            res.json({
+                                success : false,
+                                error   : err.name,
+                                message : err.message
+                            });
+                        }                             
+                    })
+            }
+            if(err){
+                res.statusCode = 500;
+                res.json({
+                    success : false,
+                    error   :   err.name,
+                    message : err.message
+                });
+            }
+            if(!user){
+                res.statusCode = 401;
+                res.json({
+                    success : false,
+                    error : 'TokenError',
+                    message : 'Authorization failed'
+                });
+            }
+        })(req, res, next);
     })
 
 
@@ -271,6 +381,7 @@ jobsRouter.route('/')
                             res.statusCode = 201;
                             res.json({
                                 success : true,
+                                data    :   job,
                                 message :   "Successfully posted the job"
                             });
                         }, (err) => {

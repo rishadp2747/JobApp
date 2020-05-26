@@ -19,10 +19,12 @@ router.post('/register', (req, res, next) => {
     }
 
     if(user) {
+      delete user['password']
       const token = authenticate.getToken({_id: user._id});
       res.statusCode = 201;
       res.json({
         success : true,
+        data  : user,
         message : "Successfully completed Registration"
       });
     }else{
