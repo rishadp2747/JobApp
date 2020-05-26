@@ -46,27 +46,31 @@ jobsRouter.route('/commit/:userId')
                     })
                     .then( (job) => {
                         if(job){
-                            return Job.updateOne({'_id' : req.body.jobId}, {'commitedBy' : req.params.userId})
+                            return Job.updateOne({'_id' : req.body.jobId}, {'commitedBy' : req.params.userId, 'status' : 'commit'})
                         }
                     }, (err) => {
                         if(err){
-                            res.statusCode = 500,
+                            res.statusCode = 401,
                             res.json({
                                 success : false,
-                                err : err.name,
-                                message :   err.message 
+                                err : err.err,
+                                message :   err.info
                             });
                         }
                     })
                     .then((result) =>{
-                        if(result.nModified == 1){
-                            res.statusCode = 200,
-                            res.json({
-                                success : true,
-                                message  : 'Successfully selected the user for this job'
-                            });
-                            
+                        if(result){
+                            if(result.nModified == 1){
+                                res.statusCode = 200,
+                                res.json({
+                                    success : true,
+                                    message  : 'Successfully selected the user for this job'
+                                });
+                                
+                            }
+
                         }
+                        
                     })
 
             }
@@ -194,6 +198,7 @@ jobsRouter.route('/request/:jobId')
                 .then( (job) => {
                     if(job){
                         job.requests.push(user._id);
+                        job.status = 'pending';
                         job.save( (err) => {
                             if(err){
                                 if(err.name === "ValidationError"){
@@ -370,40 +375,59 @@ jobsRouter.route('/')
 
     .post((req, res, next) => {
         passport.authenticate('jwt', {session : false}, (err, user) => {
-            verify.verifyPhone(user._id)
-            .then( (result) => {
-                if(result){
-
-                    var job = new Job(req.body);
-                    job.postedBy = user._id;
-                    job.save()
-                        .then(() => {
-                            res.statusCode = 201;
-                            res.json({
-                                success : true,
-                                data    :   job,
-                                message :   "Successfully posted the job"
+            if(user){
+                verify.verifyPhone(user._id)
+                .then( (result) => {
+                    if(result.status){
+                        var job = new Job(req.body);
+                        job.postedBy = user._id;
+                        job.save()
+                            .then(() => {
+                                res.statusCode = 201;
+                                res.json({
+                                    success : true,
+                                    data    :   job,
+                                    message :   "Successfully posted the job"
+                                });
+                            }, (err) => {
+                                res.statusCode = 400;
+                                res.json({
+                                    success :   false,
+                                    error   :   err.name,
+                                    message :   err.message 
+                                });
                             });
-                        }, (err) => {
-                            res.statusCode = 400;
-                            res.json({
-                                success :   false,
-                                error   :   err.name,
-                                message :   err.message 
-                            });
-                        });
 
-                }
-            }, (err) => {
-                if(err){
-                    res.statusCode = 401;
-                    res.json({
-                        success : false,
-                        error   : err.err,
-                        message :   err.info
-                    })
-                }
-            });
+                    }
+                }, (err) => {
+                    if(err){
+                        res.statusCode = 401;
+                        res.json({
+                            success : false,
+                            error   : err.err,
+                            message :   err.info
+                        })
+                    }
+                });
+
+            } 
+            if(err){
+                res.statusCode = 500;
+                res.json({
+                    success : false,
+                    error   :   err.name,
+                    message : err.message
+                });
+            }
+            if(!user){
+                res.statusCode = 401;
+                res.json({
+                    success : false,
+                    error : 'TokenError',
+                    message : 'Authorization failed'
+                });
+            }
+            
         })(req, res, next);
     });
 

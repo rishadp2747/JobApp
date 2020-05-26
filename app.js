@@ -10,10 +10,10 @@ const bodyParser = require('body-parser');
 
 
 var indexRouter = require('./routes/index');
-var skillsRouter = require('./routes/skills')
-var usersRouter = require('./routes/users');
-var jobsRouter = require('./routes/jobs');
-var adminsRouter = require('./routes/admins');
+var skillsRouter = require('./routes/skillRouter')
+var usersRouter = require('./routes/userRouter');
+var jobsRouter = require('./routes/jobRouter');
+var adminsRouter = require('./routes/adminRouter');
 
 var dbConfig = require('./config/database');
 
@@ -46,7 +46,7 @@ app.use(passport.initialize());
 
 
 app.use('/', indexRouter);
-app.use('/api/users', usersRouter);
+app.use('/api/user', usersRouter);
 app.use('/api/jobs', jobsRouter);
 app.use('/api/admins', adminsRouter);
 app.use('/api/skills', skillsRouter);

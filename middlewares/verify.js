@@ -4,14 +4,19 @@ var Job =   require('../models/Jobs');
 
 exports.verifyPhone = (userId) => {
     return new Promise((resolve, reject) => {
-        user.findOne({'_id' : userId, phoneVerify : true},(err,user) => {
+        user.findOne({'_id' : userId},(err,user) => {
             if(err){
-                return reject({status: false, err: 'USerError', info :'Phone number not verified yet'});
+                return reject({status: false, err: 'ConnectionError', info :'Server Error please contact administrator'});
             }
             if(user) {
-                return resolve({status :true, data: user, info :  'Phone number verified'})
+                if(user.phoneVerify){
+                    return resolve({status :true, data: user, info :  'Phone number verified'})
+                }else{
+                    return reject({status: false, err: 'VerificationError', info :'Phone number not verified yet'});
+                }
+                
             }else{
-                return reject({status: false, err: 'VerificationError', info :'Phone number not verified yet'});
+                return reject({status: false, err: 'UserError', info :'No such user found'});
             }
         });
     });
@@ -20,7 +25,7 @@ exports.verifyPhone = (userId) => {
 
 exports.jobStatus = (jobId) => {
     return new Promise((resolve, reject) => {
-        Job.findOne({'_id' : jobId, 'status' : 'active'}, (err,job) => {
+        Job.findOne({'_id' : jobId, 'status' : { "$in" : ["active", "pending"] } } , (err,job) => {
             
             if(err){
                 return reject({status : false, err: 'JobError', info : 'No such job found'});
@@ -82,7 +87,7 @@ exports.verifySkill = (jobId, userId) => {
 exports.verifyRequest = (jobId, userId) => {
 
     return new Promise( (resolve, reject) => {
-        Job.findOne({'_id' : jobId, 'request' : userId }, (err, job) => {
+        Job.findOne({'_id' : jobId, 'requests' : userId }, (err, job) => {
             if(err) {
                 return reject({status : false, err : err.name, info : err.message});
             }
@@ -90,7 +95,7 @@ exports.verifyRequest = (jobId, userId) => {
             if(job){
                 return resolve({status : true, data : job, info : 'Verified the request'})
             }else{
-                return reject({status : false, err : 'ValidationError', infor : 'User not requested for this job or just cancelled the request'})
+                return reject({status : false, err : 'ValidationError', info : 'User not requested for this job or just cancelled the request'})
             }
         })
     });
