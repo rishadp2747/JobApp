@@ -11,7 +11,7 @@ const bodyParser = require('body-parser');
 
 var indexRouter = require('./routes/index');
 var skillsRouter = require('./routes/skillRouter')
-var usersRouter = require('./routes/user');
+var usersRouter = require('./routes/userRouter');
 var jobsRouter = require('./routes/jobRouter');
 var adminsRouter = require('./routes/adminRouter');
 

@@ -1,7 +1,5 @@
 const mongoose = require('mongoose');
 const Schema  = mongoose.Schema;
-const arrayUniquePlugin = require('mongoose-unique-array');
-var beautifyUnique = require('mongoose-beautiful-unique-validation');
 
 const TimeSchema = new Schema({
     hr: {
@@ -33,32 +31,32 @@ const jobSchema = new Schema({
 
     title : {
         type : String,
-        required : true
+        required : [true,'title field is required']
         
     },
     description : {
         type : String, 
-        required : true
+        required : [true, 'description field is required']
         
     },
     dateFrom : {
         type : Date, 
-        required : true
+        required : [true, 'dateFrom field is required']
         
     },
     dateTo : {
         type : Date, 
-        required : true
+        required : [true, 'dateTo field is required']
         
     },
     timeFrom : {
         type : TimeSchema, 
-        required : true
+        required : [true, 'timeFrom is required']
         
     },
     timeTo : {
         type : TimeSchema, 
-        required : true
+        required : [true, 'timeFrom is required']
         
     },
     skill : { 
@@ -82,14 +80,13 @@ const jobSchema = new Schema({
     },
     requests : [{ 
         type : mongoose.Schema.Types.ObjectId,
-        ref: 'User', 
-        unique :'You already requested for this job'
+        ref: 'User'
     }]
     
 },{
     timestamps : true
 });
 
-jobSchema.plugin(beautifyUnique);
-jobSchema.plugin(arrayUniquePlugin);
+//jobSchema.plugin(beautifyUnique);
+//jobSchema.plugin(arrayUniquePlugin);
 module.exports = mongoose.model('Job', jobSchema);
