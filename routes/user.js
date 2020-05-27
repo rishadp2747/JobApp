@@ -6,38 +6,50 @@ var passport = require('passport');
 
 var authenticate = require('../middlewares/user');
 var verify = require('../middlewares/verify');
-var validator = require('../middlewares/validator');
 
-var router = express.Router();
+var userRouter = express.Router();
 
-router.use(bodyParser.json());
+userRouter.use(bodyParser.json());
 
-router.post('/register', (req, res, next) => {
-  passport.authenticate('userRegister', (err, user, info) => {
-    if(err) {
-      return next(err)
-    }
 
-    if(user) {
-      delete user['password']
-      const token = authenticate.getToken({_id: user._id});
-      res.statusCode = 201;
-      res.json({
-        success : true,
-        data  : user,
-        message : "Successfully completed Registration"
-      });
-    }else{
-      res.statusCode = 400;
+userRouter.route('/register')
+  .get( (req, res, next) => {
+      res.statusCode  = 404;
       res.json({
         success : false,
-        error     : 'ErrorFields or ValidationError',
-        message : info
+        error : 'EndPointError',
+        message : 'There is no such endpoint with these REST verb'
       });
-    }
-    })(req, res, next);
-});
+  })
+  .post( (req, res, next) => {
+    passport.authenticate('userRegister', (err, user, info) => {
+      if(err) {
+        return next(err)
+      }
+  
+      if(user) {
+        delete user['password']
+        const token = authenticate.getToken({_id: user._id});
+        res.statusCode = 201;
+        res.json({
+          success : true,
+          data  : user,
+          message : "Successfully completed Registration"
+        });
+      }else{
+        res.statusCode = 400;
+        res.json({
+          success : false,
+          error     : 'ErrorFields or ValidationError',
+          message : info
+        });
+      }
+      })(req, res, next);
 
+  });
+
+
+  /*
 router.post("/login", function(req, res, next) {
   passport.authenticate("userLogin", function(err, user, info) {
     if(err){
@@ -94,6 +106,6 @@ router.post("/login", function(req, res, next) {
 });
 
 
+*/
 
-
-module.exports = router;
+module.exports = userRouter;

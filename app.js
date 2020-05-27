@@ -11,7 +11,7 @@ const bodyParser = require('body-parser');
 
 var indexRouter = require('./routes/index');
 var skillsRouter = require('./routes/skillRouter')
-var usersRouter = require('./routes/userRouter');
+var usersRouter = require('./routes/user');
 var jobsRouter = require('./routes/jobRouter');
 var adminsRouter = require('./routes/adminRouter');
 
@@ -45,27 +45,42 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(passport.initialize());
 
 
-app.use('/', indexRouter);
-app.use('/api/user', usersRouter);
+app.use('/api/users', usersRouter);
 app.use('/api/jobs', jobsRouter);
 app.use('/api/admins', adminsRouter);
 app.use('/api/skills', skillsRouter);
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  next(createError(404));
+app.use(function(err, req, res, next) {
+  console.log('34');
+  res.statusCode = 404;
+  res.json({
+    success : false,
+    error : err.message,
+    message : err.message
+  });
+  //next()
+ // next(createError(404));
 });
 
 // error handler
 app.use(function(err, req, res, next) {
+
+  /*
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
+*/
 
   console.log(err);
   // render the error page
-  res.status(err.status || 500);
-  res.render('error');
+  //res.status(err.status || 500);
+  //res.render('error');
+  res.json({
+    success : false,
+    error : err.message,
+    message : err.message
+  });
 });
 
 module.exports = app;
