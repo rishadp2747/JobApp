@@ -53,7 +53,11 @@ app.use('/api/skills', skillsRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
-  next(createError(404));
+  res.status(400).json({
+    success : false,
+    error : 'error 404',
+    message : 'Page Not Found'
+  });
 });
 
 // error handler
