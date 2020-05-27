@@ -7,7 +7,7 @@ const response = require('../serviceProviders/responser');
 
 
 var user = require('../middlewares/user');
-var job  =  require('../middlewares/verify'); 
+var job  =  require('../middlewares/jobMiddlewares'); 
 
 var User = require('../models/Users');
 var Job  =  require('../models/Jobs');
@@ -56,7 +56,8 @@ jobsRouter.route('/')
    
 
 jobsRouter.route('/request/:jobId')
-    .get(user.verifyUser, job.verifyJob, (req, res, next) => {
+    .get(user.verifyUser, job.verifyJob, job.verifyOwner, (req, res, next) => {
+        //to display all the requests of a particular job
         Job.findOne({'_id' : req.params.jobId},'requests').populate('requests','name skill age sex phone email rating location')
             .then( (jobs) => {
                 if(jobs){
@@ -66,6 +67,44 @@ jobsRouter.route('/request/:jobId')
                 response.errorResponse(res, 500, 'ServerError', 'Please contact administrator ! Error : JR200')
             })
     })
+    .put(user.verifyUser, user.verifyPhone, job.verifyJob, job.verifyStatusActivePending, job.verifySkill, (req, res, next) => {
+        //to show the intrest in a job in a particular job.
+        Job.findOne({'_id' : req.params.jobId}, (err, job) => {
+            if(err){
+                response.errorResponse(res, 500, 'ServerError', 'Please contact adminsitrator');
+            }
+            if(job){
+                if(job.requests.includes(req.user._id)){
+                    response.errorResponse(res, 400, 'ValidationError', 'You are already requested for this job');
+                }else{
+                    job.requests.push(req.user._id);
+                    job.status = 'pending';
+                    job.save( (err) => {
+                        if(err){
+                            response.errorResponse(res, 400, err.name, err.message);
+                        }else{
+                            response.dataResponse(res, 200, job, 'Successfully requested for this job');
+                        }
+                    });
+                }
+            }else{
+                res.errorResponse(res, 400, 'JobError', 'No such job found');
+            }
+        })
+    })
+    .delete(user.verifyUser, job.verifyJob, job.verifyRequest, (req, res, next) => {
+        //to remove a request from the job
+        Job.findOneAndUpdate({'_id' : req.params.jobId, requests : req.user._id},{ $pullAll: {requests: [req.user._id] }},{'new' : true},(err, job) => {
+            if(err){
+                response.errorResponse(res, 500, 'ServerError', 'Please contact adminsitrator');
+            }
+            if(job){
+                response.dataResponse(res, 200, job, 'Successfully removed your request');
+            }else{
+                response.errorResponse(res, 400, 'DeleteError', 'Failed to remove your request');
+            }
+        });
+    });
     
 
 
