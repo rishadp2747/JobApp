@@ -7,6 +7,8 @@ var jwt = require('jsonwebtoken');
 var config = require('../config/auth');
 var validator = require('./validator');
 
+const response = require('../serviceProviders/responser');
+
 
 /*
 exports.local = passport.use(new LocalStrategy({
@@ -135,3 +137,19 @@ exports.jwtPassport = passport.use(new JwtStrategy(opts,
     }));
 
 
+    exports.verifyUser = (req, res, next) => {
+        passport.authenticate('jwt', {session : false}, (err, user) => {
+            if(user){
+                req.user = user
+                return next();
+            }
+            if(!user){
+                response.errorResponse(res, 401, 'TokenError', 'AuthenticationFailed');
+            }
+            if(err){
+                response.errorResponse(res, 500, err.name, err.message);
+            }
+        })(req, res, next);
+    };
+    
+    
