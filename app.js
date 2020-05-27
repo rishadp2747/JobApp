@@ -51,6 +51,7 @@ app.use('/api/admins', adminsRouter);
 app.use('/api/skills', skillsRouter);
 
 // catch 404 and forward to error handler
+<<<<<<< HEAD
 app.use(function(err, req, res, next) {
   console.log('34');
   res.statusCode = 404;
@@ -61,6 +62,14 @@ app.use(function(err, req, res, next) {
   });
   //next()
  // next(createError(404));
+=======
+app.use(function(req, res, next) {
+  res.status(404).json({
+    success : false,
+    error : 'error 404',
+    message : 'Page Not Found'
+  });
+>>>>>>> d67c6361bea105deedb17985c1f0623eb631a912
 });
 
 // error handler
