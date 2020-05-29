@@ -4,7 +4,7 @@ var bodyParser = require('body-parser');
 const response = require('../serviceProviders/respondent');
 
 var user = require('../middlewares/user');
-var job  =  require('../middlewares/jobMiddlewares'); 
+var job  =  require('../middlewares/jobMiddlewares');
 
 var Job  =  require('../models/Jobs');
 
@@ -16,7 +16,7 @@ jobsRouter.route('/')
         //to get all the jobs in the pool
         Job.find({},'title description dateFrom dateTo timeFrom timeTo skill status ').populate({
             path : 'postedBy',
-            match: { 
+            match: {
                         location:
                             { $near :
                                 {
@@ -50,7 +50,7 @@ jobsRouter.route('/')
             }
         });
     });
-   
+
 
 jobsRouter.route('/request/:jobId')
     .get(user.verifyUser, job.verifyJob, job.verifyOwner, (req, res, next) => {
@@ -132,6 +132,15 @@ jobsRouter.route('/complete')
                 response.errorResponse(res, 400, 'UpdateError', 'Failed to complete this job');
             }
         })
+    })
+
+jobsRouter.route('/myjob')
+    .get(user.verifyUser, (req, res, next) => {
+      .then( (job) => {
+          response.dataResponse(res, 200, job, 'Successfully listed all jobs');
+      }, (err) =>{
+          response.errorResponse(res, 500, 'ServerError', 'Please contact administrator ! Error : JR100');
+      })
     })
 
 module.exports = jobsRouter;

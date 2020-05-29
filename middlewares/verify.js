@@ -14,7 +14,7 @@ exports.verifyPhone = (userId) => {
                 }else{
                     return reject({status: false, err: 'VerificationError', info :'Phone number not verified yet'});
                 }
-                
+
             }else{
                 return reject({status: false, err: 'UserError', info :'No such user found'});
             }
@@ -26,12 +26,12 @@ exports.verifyPhone = (userId) => {
 exports.jobStatus = (jobId) => {
     return new Promise((resolve, reject) => {
         Job.findOne({'_id' : jobId, 'status' : { "$in" : ["active", "pending"] } } , (err,job) => {
-            
+
             if(err){
                 return reject({status : false, err: 'JobError', info : 'No such job found'});
             }
             if(job) {
-    
+
                 return resolve({status : true, data : job, info : 'Active job'})
             }else{
                 return reject({status : false, err : 'ValidationError', info : 'This job is not active'})
@@ -47,7 +47,7 @@ exports.jobOwner = (jobId, userId) => {
                 return reject({status : false, err: 'JobError', info : 'No such job found'});
             }
             if(job) {
-    
+
                 return resolve({status : true, data : job, info : 'Owner verified'})
             }else{
                 return reject({status : false, err : 'ValidationError', info : 'You are not owner of this job'})
@@ -70,9 +70,9 @@ exports.verifySkill = (jobId, userId) => {
                     }else{
                         return reject({status : false , err : 'ElegibilityError', info : 'User not eligible for this job'});
                     }
-                    
+
                 });
-                
+
 
             }
             if(err){
