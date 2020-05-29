@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 var User = require('../models/Users');
 var passport = require('passport');
 
-var authenticate = require('../middlewares/user');
+var authenticate = require('../middlewares/userMiddlewares');
 var verify = require('../middlewares/verify');
 
 var respondent = require('../serviceProviders/respondent');
@@ -109,11 +109,11 @@ userRouter.route("/login")
 });
 
 userRouter.route('/profile')
-.get(authenticate.verifyUser,authenticate.verifyPhone,(req, res, next) => {
-  data = req.user.toJSON();
-  delete data['password'];
-  respondent.dataResponse(res,200,data,'Successfully fetched details of the user');
-});
+  .get(authenticate.verifyUser,authenticate.verifyPhone,(req, res, next) => {
+    data = req.user.toJSON();
+    delete data['password'];
+    respondent.dataResponse(res,200,data,'Successfully fetched details of the user');
+  });
 
 
 

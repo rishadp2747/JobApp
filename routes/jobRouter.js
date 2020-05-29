@@ -3,7 +3,7 @@ var bodyParser = require('body-parser');
 
 const response = require('../serviceProviders/respondent');
 
-var user = require('../middlewares/user');
+var user = require('../middlewares/userMiddlewares');
 var job  =  require('../middlewares/jobMiddlewares'); 
 
 var Job  =  require('../models/Jobs');
