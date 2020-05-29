@@ -14,6 +14,7 @@ var skillsRouter = require('./routes/skillRouter')
 var usersRouter = require('./routes/userRouter');
 var jobsRouter = require('./routes/jobRouter');
 var adminsRouter = require('./routes/adminRouter');
+var uploadRouter = require('./routes/uploadRouter');
 
 var dbConfig = require('./config/database');
 
@@ -45,10 +46,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(passport.initialize());
 
 
+
 app.use('/api/users', usersRouter);
 app.use('/api/jobs', jobsRouter);
 app.use('/api/admins', adminsRouter);
 app.use('/api/skills', skillsRouter);
+app.use('/api/upload', uploadRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

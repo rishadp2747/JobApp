@@ -1,15 +1,11 @@
 var express = require('express');
-var router = express.Router();
 var bodyParser = require('body-parser');
-var passport = require('passport');
 
-const response = require('../serviceProviders/responser');
-
+const response = require('../serviceProviders/respondent');
 
 var user = require('../middlewares/user');
 var job  =  require('../middlewares/jobMiddlewares'); 
 
-var User = require('../models/Users');
 var Job  =  require('../models/Jobs');
 
 var jobsRouter = express.Router();
@@ -17,6 +13,7 @@ jobsRouter.use(bodyParser.json());
 
 jobsRouter.route('/')
     .get( user.verifyUser, (req, res, next) => {
+        //to get all the jobs in the pool
         Job.find({},'title description dateFrom dateTo timeFrom timeTo skill status ').populate({
             path : 'postedBy',
             match: { 
@@ -105,7 +102,36 @@ jobsRouter.route('/request/:jobId')
             }
         });
     });
-    
 
+
+
+jobsRouter.route('/commit/:userId')
+    .put(user.verifyUser, job.verifyJob, job.verifyOwner, job.verifyRequest, (req, res, next) => {
+        Job.findOneAndUpdate({'_id' : req.body.jobId}, {'commitedBy' : req.params.userId, 'status' : 'commit'}, {'new' : true }, (err, job) => {
+            if(err){
+                response.errorResponse(res, 500, 'ServerError', 'Please contact adminsitrator');
+            }
+            if(job){
+                response.dataResponse(res, 200, job, 'Successfully commited the user for this job');
+            }else{
+                response.errorResponse(res, 400, 'UpdateError', 'Failed to commit the user for this job');
+            }
+        })
+    })
+
+
+jobsRouter.route('/complete')
+    .put(user.verifyUser, job.verifyJob, job.verifyOwner, job.verifyCommit, (req, res, next) => {
+        Job.findOneAndUpdate({'_id' : req.body.jobId}, {'status' : 'completed'}, {'new' : true }, (err, job) => {
+            if(err){
+                response.errorResponse(res, 500, 'ServerError', 'Please contact adminsitrator');
+            }
+            if(job){
+                response.dataResponse(res, 200, job, 'Successfully completed this job');
+            }else{
+                response.errorResponse(res, 400, 'UpdateError', 'Failed to complete this job');
+            }
+        })
+    })
 
 module.exports = jobsRouter;

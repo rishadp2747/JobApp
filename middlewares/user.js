@@ -7,7 +7,7 @@ var jwt = require('jsonwebtoken');
 var config = require('../config/auth');
 var validator = require('./validator');
 
-const response = require('../serviceProviders/responser');
+const response = require('../serviceProviders/respondent');
 
 
 /*

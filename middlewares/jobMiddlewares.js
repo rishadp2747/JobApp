@@ -1,7 +1,7 @@
 var User = require('../models/Users');
 var Job =   require('../models/Jobs');
 
-var response = require('../serviceProviders/responser');
+var response = require('../serviceProviders/respondent');
 
 function getJobId(req){
     var jobId;
@@ -26,14 +26,14 @@ function getUserId(req){
             userId = req.params.userId;
         }
     }
-    if(req.body){
-        if(req.body.userId){
-            userId = req.body.userId;
-        }
-    }
     if(req.user){
         if(req.user._id){
             userId = req.user._id;
+        }
+    }
+    if(req.body){
+        if(req.body.userId){
+            userId = req.body.userId;
         }
     }
     
@@ -136,6 +136,20 @@ exports.verifySkill = (req, res, next) =>   {
             })
         }else{
             response.errorResponse(res, 400, 'JobError', 'No such job found');
+        }
+    });
+};
+
+exports.verifyCommit = (req, res, next) => {
+    var jobId = getJobId(req);
+    Job.findOne({'_id' : jobId, 'status' : { "$in" : ["commit"] } } , (err,job) => {
+        if(err){
+            response.errorResponse(res, 400, 'RequestError', 'Failed to read the data provided by user'); 
+        }
+        if(job){
+            return next();
+        }else{
+            response.errorResponse(res, 400, 'ValidationError', 'Nobody Commited this job to updated it as done');
         }
     });
 }
