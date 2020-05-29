@@ -7,6 +7,8 @@ var passport = require('passport');
 var authenticate = require('../middlewares/user');
 var verify = require('../middlewares/verify');
 
+var respondent = require('../serviceProviders/respondent');
+
 var userRouter = express.Router();
 
 userRouter.use(bodyParser.json());
@@ -108,22 +110,16 @@ userRouter.route("/login")
 
 userRouter.route('/profile')
 .get(authenticate.verifyUser,authenticate.verifyPhone,(req, res, next) => {
-  //to display all the details of a user
-  res.status(200).json({
-  location: req.user.location,
-  phoneVerify: true,
-  skills: req.user.skills,
-  _id: req.user._id,
-  rating: req.user.rating,
-  phone: req.user.phone,
-  email: req.user.email,
-  age: req.user.age,
-  name: req.user.name,
-  sex: req.user.sex,
-  createdAt: req.user.createdAt,
-  updatedAt: req.user.updatedAt,
-  __v: req.user.__v
-  });
+  
+  try {
+  data = [req.user.location,req.user.skills,req.user.rating,req.user.phone,req.user.email,req.user.age,
+    req.user.name,req.user.sex,req.user.createdAt,req.user.updatedAt,req.user.__v];
+
+    respondent.dataResponse(res,200,data,'Successfully fetched details of the user');
+  }
+  catch(err) {
+    respondent.errorResponse(res,500,err,'failed to fetch details of user');
+  }
 });
 
 
