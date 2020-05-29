@@ -106,6 +106,26 @@ userRouter.route("/login")
 
 });
 
+userRouter.route('/profile')
+.get(authenticate.verifyUser,authenticate.verifyPhone,(req, res, next) => {
+  //to display all the details of a user
+  res.status(200).json({
+  location: req.user.location,
+  phoneVerify: true,
+  skills: req.user.skills,
+  _id: req.user._id,
+  rating: req.user.rating,
+  phone: req.user.phone,
+  email: req.user.email,
+  age: req.user.age,
+  name: req.user.name,
+  sex: req.user.sex,
+  createdAt: req.user.createdAt,
+  updatedAt: req.user.updatedAt,
+  __v: req.user.__v
+  });
+});
+
 
 
 
