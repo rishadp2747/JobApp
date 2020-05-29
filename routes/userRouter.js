@@ -115,6 +115,18 @@ userRouter.route('/profile')
     respondent.dataResponse(res,200,data,'Successfully fetched details of the user');
   });
 
+userRouter.route('/delete')
+  .delete(authenticate.verifyUser,authenticate.verifyPhone,(req, res, next) => {
+    User.findByIdAndRemove({_id : req.user._id})
+    .exec()
+    .then(user => {
+      console.log(user)
+      respondent.dataResponse(res,200,user,'Successfully deleted the user');
+    })
+    .catch(err => {
+      respondent.errorResponse(res,500,err,'user deletion failed');
+    });
+  });
 
 
 
