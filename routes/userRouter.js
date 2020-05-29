@@ -112,7 +112,7 @@ userRouter.route('/profile')
 .get(authenticate.verifyUser,authenticate.verifyPhone,(req, res, next) => {
   
   try {
-  data = [req.user.location,req.user.skills,req.user.rating,req.user.phone,req.user.email,req.user.age,
+  data = [req.user.location,req.user.skills,req.user.rating,req.user.phone,req.user.phoneVerify,req.user.email,req.user.age,
     req.user.name,req.user.sex,req.user.createdAt,req.user.updatedAt,req.user.__v];
 
     respondent.dataResponse(res,200,data,'Successfully fetched details of the user');
