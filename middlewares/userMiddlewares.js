@@ -26,8 +26,7 @@ passport.use('userLogin', new LocalStrategy({
     });
 }));
 
-
-exports.userRegister = passport.use('userRegister', new LocalStrategy ({
+passport.use('userRegister', new LocalStrategy ({
     usernameField : 'phone',
     passwordField   :   'password',
     passReqToCallback : true
@@ -88,7 +87,6 @@ exports.userRegister = passport.use('userRegister', new LocalStrategy ({
 
 exports.userLogin =  (req, res, next) => {
     passport.authenticate("userLogin", (err, user, info) => {
-        console.log('3434');
         if(err){
             response.errorResponse(res, 500, 'ServerError', 'Please contact adminstrator');
         }
@@ -99,7 +97,21 @@ exports.userLogin =  (req, res, next) => {
             response.errorResponse(res, 400, 'ValidationError', info);
         }
     })(req, res, next);
-}    
+}
+
+exports.userRegister = (req, res, next) => {
+    passport.authenticate("userRegister", (err, user, info) => {
+        if(err){
+            response.errorResponse(res, 500, 'ServerError', 'Please contact adminstrator');
+        }
+        if(user){
+            req.user = user;
+            return next();
+        }else{
+            response.errorResponse(res, 400, 'ErrorFields or ValidationError', info);
+        }
+    })(req, res, next);
+}
     
 
 
