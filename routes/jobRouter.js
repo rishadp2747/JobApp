@@ -1,11 +1,14 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 
+//service
 const response = require('../serviceProviders/respondent');
 
+//middlewares
 var user = require('../middlewares/userMiddlewares');
 var job  =  require('../middlewares/jobMiddlewares'); 
 
+//model
 var Job  =  require('../models/Jobs');
 
 var jobsRouter = express.Router();
@@ -107,6 +110,7 @@ jobsRouter.route('/request/:jobId')
 
 jobsRouter.route('/commit/:userId')
     .put(user.verifyUser, job.verifyJob, job.verifyOwner, job.verifyRequest, (req, res, next) => {
+        //select the user fo this job
         Job.findOneAndUpdate({'_id' : req.body.jobId}, {'commitedBy' : req.params.userId, 'status' : 'commit'}, {'new' : true }, (err, job) => {
             if(err){
                 response.errorResponse(res, 500, 'ServerError', 'Please contact adminsitrator');
@@ -122,6 +126,7 @@ jobsRouter.route('/commit/:userId')
 
 jobsRouter.route('/complete')
     .put(user.verifyUser, job.verifyJob, job.verifyOwner, job.verifyCommit, (req, res, next) => {
+        //change the status as completed
         Job.findOneAndUpdate({'_id' : req.body.jobId}, {'status' : 'completed'}, {'new' : true }, (err, job) => {
             if(err){
                 response.errorResponse(res, 500, 'ServerError', 'Please contact adminsitrator');
