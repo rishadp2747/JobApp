@@ -9,17 +9,23 @@ var validator = require('./validator');
 
 const response = require('../serviceProviders/respondent');
 
+passport.use('userLogin', new LocalStrategy({
+    usernameField : 'phone',
+    passwordField : 'password',
+    passReqToCallback : true
+}, (req, phone, password, done) =>{
+    User.findOne({'phone' : phone}, (err, user) => {
+        if(err)
+            return done(null);
+        if(!user){
+            return done(null, false, 'Phone number or Password is not correct');
+        }
+        if(!user.validPassword(password))
+            return done(null, false, 'Phone number or Password is not correct');
+        return done(null, user)
+    });
+}));
 
-/*
-exports.local = passport.use(new LocalStrategy({
-    usernameField   : 'phone',
-    passwordField   : 'password'
-
-},User.authenticate()));
-
-passport.serializeUser(User.serializeUser());
-passport.deserializeUser(User.deserializeUser());
-*/
 
 exports.userRegister = passport.use('userRegister', new LocalStrategy ({
     usernameField : 'phone',
@@ -80,22 +86,21 @@ exports.userRegister = passport.use('userRegister', new LocalStrategy ({
 }));
 
 
-passport.use('userLogin', new LocalStrategy({
-    usernameField : 'phone',
-    passwordField : 'password',
-    passReqToCallback : true
-}, (req, phone, password, done) =>{
-    User.findOne({'phone' : phone}, (err, user) => {
-        if(err)
-            return done(err);
-        if(!user){
-            return done(null, false, 'Username or Password is not correct');
+exports.userLogin =  (req, res, next) => {
+    passport.authenticate("userLogin", (err, user, info) => {
+        console.log('3434');
+        if(err){
+            response.errorResponse(res, 500, 'ServerError', 'Please contact adminstrator');
         }
-        if(!user.validPassword(password))
-            return done(null, false, 'Username or Password is not correct');
-        return done(null, user)
-    });
-}));
+        if(user){
+            req.user = user;
+            return next();
+        }else{
+            response.errorResponse(res, 400, 'ValidationError', info);
+        }
+    })(req, res, next);
+}    
+    
 
 
 exports.getToken = function(user) {
@@ -104,7 +109,7 @@ exports.getToken = function(user) {
     });
 };
 
-
+/*
 passport.serializeUser(function(user, done) {
     done(null, user.id);
 });
@@ -114,6 +119,7 @@ passport.deserializeUser(function(id, done) {
         done(err, user);
     });
 });
+*/
 
 var opts = {};
 opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();

@@ -4,10 +4,10 @@ const bodyParser = require('body-parser');
 var User = require('../models/Users');
 var passport = require('passport');
 
-var authenticate = require('../middlewares/userMiddlewares');
+var user = require('../middlewares/userMiddlewares');
 var verify = require('../middlewares/verify');
 
-var respondent = require('../serviceProviders/respondent');
+var response = require('../serviceProviders/respondent');
 
 var userRouter = express.Router();
 
@@ -24,14 +24,14 @@ userRouter.route('/register')
       });
   })
   .post( (req, res, next) => {
-    passport.authenticate('userRegister', (err, user, info) => {
+    passport.user('userRegister', (err, user, info) => {
       if(err) {
         return next(err)
       }
   
       if(user) {
         delete user['password']
-        const token = authenticate.getToken({_id: user._id});
+        const token = user.getToken({_id: user._id});
         res.statusCode = 201;
         res.json({
           success : true,
@@ -51,10 +51,10 @@ userRouter.route('/register')
   });
 
 
-  
+  /*
 userRouter.route("/login")
 .post((req, res, next) =>  {
-  passport.authenticate("userLogin", function(err, user, info) {
+  passport.user("userLogin", function(err, user, info) {
     if(err){
       return next(err);
     }
@@ -62,7 +62,7 @@ userRouter.route("/login")
       verify.verifyPhone(user._id)
         .then((result) => {
           if(result){
-            const token = authenticate.getToken({_id: user._id});
+            const token = user.getToken({_id: user._id});
             res.statusCode = 200;
             res.json({
               success : true,
@@ -75,7 +75,7 @@ userRouter.route("/login")
           }
         }, (err) => {
           if(err){
-            const token = authenticate.getToken({_id: user._id});
+            const token = user.getToken({_id: user._id});
             res.statusCode = 401;
             res.json({
               success : true,
@@ -107,12 +107,19 @@ userRouter.route("/login")
   })(req, res, next);
 
 });
+*/
+
+userRouter.route('/login')
+  .post(user.userLogin, user.verifyPhone, (req, res, next) => {
+        token = user.getToken({_id : req.user._id});
+        response.dataResponse(res, 200, {token : token}, 'Successfully loged in');
+  });
 
 userRouter.route('/profile')
-  .get(authenticate.verifyUser,authenticate.verifyPhone,(req, res, next) => {
+  .get(user.verifyUser,user.verifyPhone,(req, res, next) => {
     data = req.user.toJSON();
     delete data['password'];
-    respondent.dataResponse(res,200,data,'Successfully fetched details of the user');
+    response.dataResponse(res,200,data,'Successfully fetched details of the user');
   });
 
 
