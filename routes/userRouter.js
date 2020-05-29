@@ -1,8 +1,10 @@
 var express = require('express');
 const bodyParser = require('body-parser');
 
+//middlewares
 var user = require('../middlewares/userMiddlewares');
 
+//services
 var response = require('../serviceProviders/respondent');
 
 var userRouter = express.Router();
@@ -25,7 +27,7 @@ userRouter.route('/profile')
   .get(user.verifyUser,user.verifyPhone,(req, res, next) => {
     data = req.user.toJSON();
     delete data['password'];
-    response.dataResponse(res,200,data,'Successfully fetched details of the user');
+    response.dataResponse(res,200,data,'Successfully listed the details of user');
   });
 
 module.exports = userRouter;
