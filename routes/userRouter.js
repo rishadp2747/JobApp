@@ -7,6 +7,8 @@ var passport = require('passport');
 var authenticate = require('../middlewares/user');
 var verify = require('../middlewares/verify');
 
+var respondent = require('../serviceProviders/respondent');
+
 var userRouter = express.Router();
 
 userRouter.use(bodyParser.json());
@@ -104,6 +106,13 @@ userRouter.route("/login")
     }
   })(req, res, next);
 
+});
+
+userRouter.route('/profile')
+.get(authenticate.verifyUser,authenticate.verifyPhone,(req, res, next) => {
+  data = req.user.toJSON();
+  delete data['password'];
+  respondent.dataResponse(res,200,data,'Successfully fetched details of the user');
 });
 
 
