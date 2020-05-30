@@ -134,13 +134,18 @@ jobsRouter.route('/complete')
         })
     })
 
-jobsRouter.route('/myjob')
+jobsRouter.route('/myjob)
     .get(user.verifyUser, (req, res, next) => {
-      .then( (job) => {
-          response.dataResponse(res, 200, job, 'Successfully listed all jobs');
-      }, (err) =>{
-          response.errorResponse(res, 500, 'ServerError', 'Please contact administrator ! Error : JR100');
-      })
-    })
+        Job.find( {'postedBy' : req.user._id },(err,job) => {
+          if(err){
+            response.errorResponse(res, 500, 'ServerError', 'Please contact adminsitrator');
+          }
+          if(job){
+              response.dataResponse(res, 200, job, 'Successfully listed  jobs');
+            }else{
+                response.errorResponse(res, 400, 'UpdateError', 'Failed to list the jobs');
+            }
+        })
+    });
 
 module.exports = jobsRouter;
