@@ -106,7 +106,7 @@ userRouter.route("/login")
 
 });
 userRouter.route('/edit')
-  .put(authendicate.verifyUser,authendicate.verifyPhone,(req,res,next) => {
+  .put(authenticate.verifyUser,authenticate.verifyPhone,(req,res,next) => {
     User.findByIdAndUpdate({_id:req.user._id},req.body,{new : true},(err,user) => {
       if(!err){
         console.log(user)
