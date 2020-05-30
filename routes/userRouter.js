@@ -49,8 +49,8 @@ userRouter.route('/delete')
 
 userRouter.route("/skill/add")
 .put(user.verifyUser, user.verifyPhone,  (req, res, next) => {
-                    user.skills.push(req.user.skills);
-                    user.save( (err) => {
+                    req.user.skills.push(req.body.skills);
+                    req.user.save( (err) => {
                         if(err){
                             response.errorResponse(res, 400, err.name, err.message);
                         }else{
