@@ -150,7 +150,7 @@ jobsRouter.route('/:jobId')
           .catch(err => {
             response.errorResponse(res,500,err,'job deletion failed');
           });
-});
+    });
 
 jobsRouter.route('/:jobId')
     //To update a Job
@@ -161,6 +161,6 @@ jobsRouter.route('/:jobId')
             }
             response.dataResponse(res,200,result,'Successfully updated the job');
         });
-});
+    });
 
 module.exports = jobsRouter;
