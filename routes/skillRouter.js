@@ -67,8 +67,8 @@ skillsRouter.route('/')
 });
 // to delete a skill for a user
 skillsRouter.route('/remove')
-.delete(user.verifyUser,skill.verifySkill,(req,res,next) => {
-   Skills.findOneAndRemove({'_id' : userId},(err,skill) => {
+.delete(user.verifyUser,(req,res,next) => {
+   Skills.findOneAndRemove({'_id' : req.params.userId},(err,skill) => {
      if(err){
        response.errorResponse(res, 500, 'ServerError', 'Please contact adminsitrator');
      }
