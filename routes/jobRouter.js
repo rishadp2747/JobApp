@@ -121,7 +121,7 @@ jobsRouter.route('/commit/:userId')
                 response.errorResponse(res, 400, 'UpdateError', 'Failed to commit the user for this job');
             }
         })
-    })
+    });
 
 
 jobsRouter.route('/complete')
@@ -137,6 +137,30 @@ jobsRouter.route('/complete')
                 response.errorResponse(res, 400, 'UpdateError', 'Failed to complete this job');
             }
         })
-    })
+    });
+
+jobsRouter.route('/:jobId')
+    //To delete a Job
+    .delete(user.verifyUser, user.verifyPhone, job.verifyOwner, (req, res, next) => {
+        Job.findByIdAndRemove({_id : req.params.jobId})
+        .exec()
+        .then(job => {
+            response.dataResponse(res,200,job,'Successfully deleted the job');
+          })
+          .catch(err => {
+            response.errorResponse(res,500,err,'job deletion failed');
+          });
+});
+
+jobsRouter.route('/:jobId')
+    //To update a Job
+    .put(user.verifyUser, user.verifyPhone, job.verifyOwner, (req, res, next) => {
+        Job.findByIdAndUpdate({_id : req.params.jobId},req.body, (err,result) => {
+            if(err) {
+                response.errorResponse(res,500,err,'job updation failed');
+            }
+            response.dataResponse(res,200,result,'Successfully updated the job');
+        });
+});
 
 module.exports = jobsRouter;
