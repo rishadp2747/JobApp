@@ -141,25 +141,30 @@ jobsRouter.route('/complete')
 
 jobsRouter.route('/:jobId')
     //To delete a Job
-    .delete(user.verifyUser, user.verifyPhone, job.verifyOwner, (req, res, next) => {
-        Job.findByIdAndRemove({_id : req.params.jobId})
-        .exec()
-        .then(job => {
-            response.dataResponse(res,200,job,'Successfully deleted the job');
-          })
-          .catch(err => {
-            response.errorResponse(res,500,err,'job deletion failed');
-          });
-    });
-
-jobsRouter.route('/:jobId')
-    //To update a Job
-    .put(user.verifyUser, user.verifyPhone, job.verifyOwner, (req, res, next) => {
-        Job.findByIdAndUpdate({_id : req.params.jobId},req.body, (err,result) => {
-            if(err) {
-                response.errorResponse(res,500,err,'job updation failed');
+    .delete(user.verifyUser, job.verifyJob, job.verifyOwner, (req, res, next) => {
+        Job.findByIdAndRemove({_id : req.params.jobId}, (err, job) => {
+            if(err){
+                response.errorResponse(res, 500, 'ServerError', 'Please contact adminsitrator');
             }
-            response.dataResponse(res,200,result,'Successfully updated the job');
+            if(job){
+                response.dataResponse(res, 200, job, 'Successfully deleted the job')
+            }else{
+                response.errorResponse(res,400,err,'Failed to delete the job');
+            }
+        });
+    })
+    //To update a Job
+    .put(user.verifyUser, user.verifyPhone, job.verifyJob, job.verifyOwner, (req, res, next) => {
+        Job.findByIdAndUpdate({_id : req.params.jobId},req.body, (err,job) => {
+            if(err) {
+                response.errorResponse(res, 500, 'ServerError', 'Please contact adminsitrator');
+            }
+            if(job){
+                response.dataResponse(res,200, job,'Successfully updated the job');
+            }else{
+                response.errorResponse(res,400,err,'Failed to update the job');
+            }
+           
         });
     });
 
