@@ -168,7 +168,7 @@ jobsRouter.route('/:jobId')
         });
     });
 
-jobsRouter.route('/myjob)
+jobsRouter.route('/myjob')
     .get(user.verifyUser, (req, res, next) => {
         Job.find( {'postedBy' : req.user._id },(err,job) => {
           if(err){
