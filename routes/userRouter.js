@@ -49,7 +49,7 @@ userRouter.route('/delete')
 
 userRouter.route("/skill/add")
 .put(user.verifyUser, user.verifyPhone,  (req, res, next) => {
-                    user.skills.push(req.body.skills);
+                    user.skills.push(req.user.skills);
                     user.save( (err) => {
                         if(err){
                             response.errorResponse(res, 400, err.name, err.message);
