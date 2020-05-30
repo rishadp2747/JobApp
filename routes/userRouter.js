@@ -106,18 +106,17 @@ userRouter.route("/login")
 
 });
 userRouter.route('/edit')
-  .put(authendicate.verifyUser,authendicate.verifyPhone,(req,res,next)=>{
-    User.findByIdAndUpdate({_id: req.user._id},req.body)
-    .exec()
-    .then(()=>{
-      User.findOne({_id:req.user._id}).then(function(UpdatedUser){            
-        console.log(UpdatedUser)
-        respondent.dataResponse(res,200,UpdatedUser,"Successfully updated the user")
-      })
-    })
-    .catch(err =>{
-      respondent.errorResponse(res,500,err,"Updatioon of the user failed")
+  .put(authendicate.verifyUser,authendicate.verifyPhone,(req,res,next) => {
+    User.findByIdAndUpdate({_id:req.user._id},req.body,{new : true},(err,user) => {
+      if(!err){
+        console.log(user)
+        respondent.dataResponse(res,200,user,"Successfully updated user")
+      }
+      else{
+        respondent.errorResponse(res,500,err,"Error during updation")
+      }
     });
   });
+
 
 module.exports = userRouter;
