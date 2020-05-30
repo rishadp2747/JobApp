@@ -19,7 +19,7 @@ jobsRouter.route('/')
         //to get all the jobs in the pool
         Job.find({},'title description dateFrom dateTo timeFrom timeTo skill status ').populate({
             path : 'postedBy',
-            match: { 
+            match: {
                         location:
                             { $near :
                                 {
@@ -53,7 +53,7 @@ jobsRouter.route('/')
             }
         });
     });
-   
+
 
 jobsRouter.route('/request/:jobId')
     .get(user.verifyUser, job.verifyJob, job.verifyOwner, (req, res, next) => {
@@ -166,6 +166,20 @@ jobsRouter.route('/:jobId')
             }
            
         });
+    });
+
+jobsRouter.route('/myjob)
+    .get(user.verifyUser, (req, res, next) => {
+        Job.find( {'postedBy' : req.user._id },(err,job) => {
+          if(err){
+            response.errorResponse(res, 500, 'ServerError', 'Please contact adminsitrator');
+          }
+          if(job){
+              response.dataResponse(res, 200, job, 'Successfully listed  jobs');
+            }else{
+                response.errorResponse(res, 400, 'UpdateError', 'Failed to list the jobs');
+            }
+        })
     });
 
 module.exports = jobsRouter;
