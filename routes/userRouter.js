@@ -7,6 +7,9 @@ var user = require('../middlewares/userMiddlewares');
 //services
 var response = require('../serviceProviders/respondent');
 
+//model
+const User = require('../models/Users');
+
 var userRouter = express.Router();
 userRouter.use(bodyParser.json());
 
@@ -31,15 +34,16 @@ userRouter.route('/profile')
   });
 
 userRouter.route('/delete')
-  .delete(authenticate.verifyUser,authenticate.verifyPhone,(req, res, next) => {
-    User.findByIdAndRemove({_id : req.user._id})
-    .exec()
-    .then(user => {
-      console.log(user)
-      respondent.dataResponse(res,200,user,'Successfully deleted the user');
-    })
-    .catch(err => {
-      respondent.errorResponse(res,500,err,'user deletion failed');
+  .delete(user.verifyUser,user.verifyPhone,(req, res, next) => {
+    User.findByIdAndRemove({_id : req.user._id},(err, user) => {
+      if(err){
+        response.errorResponse(res, 500, 'ServerError','Please contact administrator');
+      }
+      if(user){
+        response.dataResponse(res, 200, user, 'Successfully deleted the user');
+      }else{
+        response.errorResponse(res, 400, err, 'Failed to delete this user');
+      }
     });
   });
 
