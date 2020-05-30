@@ -1,11 +1,14 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 
+//service
 const response = require('../serviceProviders/respondent');
 
-var user = require('../middlewares/user');
-var job  =  require('../middlewares/jobMiddlewares');
+//middlewares
+var user = require('../middlewares/userMiddlewares');
+var job  =  require('../middlewares/jobMiddlewares'); 
 
+//model
 var Job  =  require('../models/Jobs');
 
 var jobsRouter = express.Router();
@@ -107,6 +110,7 @@ jobsRouter.route('/request/:jobId')
 
 jobsRouter.route('/commit/:userId')
     .put(user.verifyUser, job.verifyJob, job.verifyOwner, job.verifyRequest, (req, res, next) => {
+        //select the user fo this job
         Job.findOneAndUpdate({'_id' : req.body.jobId}, {'commitedBy' : req.params.userId, 'status' : 'commit'}, {'new' : true }, (err, job) => {
             if(err){
                 response.errorResponse(res, 500, 'ServerError', 'Please contact adminsitrator');
@@ -117,11 +121,12 @@ jobsRouter.route('/commit/:userId')
                 response.errorResponse(res, 400, 'UpdateError', 'Failed to commit the user for this job');
             }
         })
-    })
+    });
 
 
 jobsRouter.route('/complete')
     .put(user.verifyUser, job.verifyJob, job.verifyOwner, job.verifyCommit, (req, res, next) => {
+        //change the status as completed
         Job.findOneAndUpdate({'_id' : req.body.jobId}, {'status' : 'completed'}, {'new' : true }, (err, job) => {
             if(err){
                 response.errorResponse(res, 500, 'ServerError', 'Please contact adminsitrator');
@@ -132,9 +137,37 @@ jobsRouter.route('/complete')
                 response.errorResponse(res, 400, 'UpdateError', 'Failed to complete this job');
             }
         })
-    })
+    });
 
-//to get the job details of a logged user
+jobsRouter.route('/:jobId')
+    //To delete a Job
+    .delete(user.verifyUser, job.verifyJob, job.verifyOwner, (req, res, next) => {
+        Job.findByIdAndRemove({_id : req.params.jobId}, (err, job) => {
+            if(err){
+                response.errorResponse(res, 500, 'ServerError', 'Please contact adminsitrator');
+            }
+            if(job){
+                response.dataResponse(res, 200, job, 'Successfully deleted the job')
+            }else{
+                response.errorResponse(res,400,err,'Failed to delete the job');
+            }
+        });
+    })
+    //To update a Job
+    .put(user.verifyUser, user.verifyPhone, job.verifyJob, job.verifyOwner, (req, res, next) => {
+        Job.findByIdAndUpdate({_id : req.params.jobId},req.body, (err,job) => {
+            if(err) {
+                response.errorResponse(res, 500, 'ServerError', 'Please contact adminsitrator');
+            }
+            if(job){
+                response.dataResponse(res,200, job,'Successfully updated the job');
+            }else{
+                response.errorResponse(res,400,err,'Failed to update the job');
+            }
+           
+        });
+    });
+
 jobsRouter.route('/myjob')
     .get(user.verifyUser, (req, res, next) => {
         Job.find( {'postedBy' : req.user._id },(err,job) => {
