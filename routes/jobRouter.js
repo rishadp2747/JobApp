@@ -180,6 +180,21 @@ jobsRouter.route('/myjob')
                 response.errorResponse(res, 400, 'UpdateError', 'Failed to list the jobs');
             }
         })
-    });
+    })
+
+//to get the details of a particular job
+jobsRouter.route('/jobs/:jobId')
+    .get(user.verifyUser,job.verifyJob,(req,res,next) => {
+      Job.find( {'_id' : req.params.jobId},(err,job) => {
+          if(err){
+            response.errorResponse(res, 500, 'ServerError', 'Please contact adminsitrator');
+          }
+          if(job){
+              response.dataResponse(res, 200, job, 'Successfully listed  the job details');
+            }else{
+                response.errorResponse(res, 400, 'UpdateError', 'Failed to list the job details');
+            }
+      })
+    }); 
 
 module.exports = jobsRouter;
