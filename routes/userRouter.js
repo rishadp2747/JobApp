@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 var User = require('../models/Users');
 var passport = require('passport');
 
-var authenticate = require('../middlewares/user');
+var user = require('../middlewares/user');
 var verify = require('../middlewares/verify');
 
 var userRouter = express.Router();
@@ -26,7 +26,7 @@ userRouter.route('/register')
       if(err) {
         return next(err)
       }
-  
+
       if(user) {
         delete user['password']
         const token = authenticate.getToken({_id: user._id});
@@ -49,7 +49,7 @@ userRouter.route('/register')
   });
 
 
-  
+
 userRouter.route("/login")
 .post((req, res, next) =>  {
   passport.authenticate("userLogin", function(err, user, info) {
@@ -104,6 +104,18 @@ userRouter.route("/login")
     }
   })(req, res, next);
 
+});
+// to delete a skill for a user
+UserRouter.route('/skill/remove')
+.delete(user.verifyUser,(req,res,next) => {
+  req.user.skills.pop(req.body.skills);
+  req.user.save( (err) => {
+    if(err){
+      response.errorResponse(res,400,err.name, err.message);
+    }else {
+      response.dataResponse(res, 200 ,job , ' Successfully  removed the skill');
+    }
+  });
 });
 
 
