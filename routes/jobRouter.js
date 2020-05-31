@@ -192,7 +192,7 @@ jobsRouter.route('/jobs/:jobId')
           if(job){
               response.dataResponse(res, 200, job, 'Successfully listed  the job details');
             }else{
-                response.errorResponse(res, 400, 'UpdateError', 'Failed to list the job details');
+                response.errorResponse(res, 400, 'ListError', 'Failed to list the job details');
             }
       })
     }); 
