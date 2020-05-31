@@ -38,10 +38,10 @@ userRouter.route('/edit')
     User.findByIdAndUpdate({_id:req.user._id},req.body,{new : true},(err,user) => {
       if(!err){
         console.log(user)
-        respondent.dataResponse(res,200,user,"Successfully updated user")
+        response.dataResponse(res,200,user,"Successfully updated user")
       }
       else{
-        respondent.errorResponse(res,500,err,"Error during updation")
+        response.errorResponse(res,500,err,"Error during updation")
       }
     });
   });
@@ -67,7 +67,7 @@ userRouter.route("/skill/add")
         if(err){
             response.errorResponse(res, 400, err.name, err.message);
         }else{
-            response.dataResponse(res, 200, job, 'Successfully added the skill');
+            response.dataResponse(res, 200, user, 'Successfully added the skill');
         }
     });
 });
