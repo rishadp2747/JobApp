@@ -200,7 +200,6 @@ jobsRouter.route('/jobs/:jobId')
 jobsRouter.route('/request')
     //to list all Jobs requested by a User
     .get(user.verifyUser,user.verifyPhone,(req,res,next) => {
-        var ids = req.user._id
         Job.find({requests : { $in: [req.user._id] }},(err,job) => {
             if(err){
                 response.errorResponse(res, 500, 'ServerError', 'Please contact adminsitrator');
