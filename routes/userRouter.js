@@ -34,7 +34,7 @@ userRouter.route('/profile')
   });
 
 userRouter.route('/edit')
-  .put(authenticate.verifyUser,authenticate.verifyPhone,(req,res,next) => {
+  .put(user.verifyUser,user.verifyPhone,(req,res,next) => {
     User.findByIdAndUpdate({_id:req.user._id},req.body,{new : true},(err,user) => {
       if(!err){
         console.log(user)
@@ -59,3 +59,18 @@ userRouter.route('/delete')
       }
     });
   });
+
+userRouter.route("/skill/add")
+.put(user.verifyUser, user.verifyPhone,  (req, res, next) => {
+    req.user.skills.push(req.body.skills);
+    req.user.save( (err) => {
+        if(err){
+            response.errorResponse(res, 400, err.name, err.message);
+        }else{
+            response.dataResponse(res, 200, job, 'Successfully added the skill');
+        }
+    });
+});
+
+
+module.exports = userRouter;
