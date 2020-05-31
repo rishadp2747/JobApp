@@ -195,6 +195,22 @@ jobsRouter.route('/jobs/:jobId')
                 response.errorResponse(res, 400, 'UpdateError', 'Failed to list the job details');
             }
       })
-    }); 
+    });
+
+jobsRouter.route('/request')
+    .get(user.verifyUser,user.verifyPhone,(req,res,next) => {
+        var ids = req.user._id
+        Job.find({requests : { $in: [req.user._id] }},(err,job) => {
+            if(err){
+                response.errorResponse(res, 500, 'ServerError', 'Please contact adminsitrator');
+              }
+              if(job){
+                  response.dataResponse(res, 200, job, 'Successfully listed  the job requets');
+                }else{
+                    response.errorResponse(res, 400, 'UpdateError', 'Failed to list the job requests');
+                }
+        })
+        
+    });
 
 module.exports = jobsRouter;
