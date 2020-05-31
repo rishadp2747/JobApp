@@ -26,62 +26,13 @@ userRouter.route('/login')
       response.dataResponse(res, 200, {token : token}, 'Successfully loged in');
   });
 
-  
-userRouter.route("/login")
-.post((req, res, next) =>  {
-  passport.authenticate("userLogin", function(err, user, info) {
-    if(err){
-      return next(err);
-    }
-    if(user) {
-      verify.verifyPhone(user._id)
-        .then((result) => {
-          if(result){
-            const token = authenticate.getToken({_id: user._id});
-            res.statusCode = 200;
-            res.json({
-              success : true,
-              phoneVerify : true,
-              data    : {
-                "token" : token
-              },
-              message : "Logged in successfully"
-            });
-          }
-        }, (err) => {
-          if(err){
-            const token = authenticate.getToken({_id: user._id});
-            res.statusCode = 401;
-            res.json({
-              success : true,
-              phoneVerify : false,
-              data  : {
-                "token" : token
-              },
-              error   : err.err,
-              message : "Logged in successfully !"+err.info
-            });
-          }
-        })
-        .catch( (err) => {
-          res.statusCode = 500;
-          res.json ({
-            success : false,
-            error     : err.name,
-            message : err.message
-          })
-        });
-    }else if(!user){
-      res.statusCode = 400;
-      res.json({
-        success : false,
-        error     : 'Credential Error',
-        message : info
-      });
-    }
-  })(req, res, next);
+userRouter.route('/profile')
+  .get(user.verifyUser,user.verifyPhone,(req, res, next) => {
+    data = req.user.toJSON();
+    delete data['password'];
+    response.dataResponse(res,200,data,'Successfully listed the details of user');
+  });
 
-});
 userRouter.route('/edit')
   .put(authenticate.verifyUser,authenticate.verifyPhone,(req,res,next) => {
     User.findByIdAndUpdate({_id:req.user._id},req.body,{new : true},(err,user) => {
@@ -108,5 +59,3 @@ userRouter.route('/delete')
       }
     });
   });
-
-module.exports = userRouter;
