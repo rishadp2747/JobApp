@@ -1,53 +1,30 @@
 var express = require('express');
 const bodyParser = require('body-parser');
 
-var User = require('../models/Users');
-var passport = require('passport');
+//middlewares
+var user = require('../middlewares/userMiddlewares');
 
-var authenticate = require('../middlewares/user');
-var verify = require('../middlewares/verify');
+//services
+var response = require('../serviceProviders/respondent');
+
+//model
+const User = require('../models/Users');
 
 var userRouter = express.Router();
-
 userRouter.use(bodyParser.json());
 
 
 userRouter.route('/register')
-  .get( (req, res, next) => {
-      res.statusCode  = 404;
-      res.json({
-        success : false,
-        error : 'EndPointError',
-        message : 'There is no such endpoint with these REST verb'
-      });
-  })
-  .post( (req, res, next) => {
-    passport.authenticate('userRegister', (err, user, info) => {
-      if(err) {
-        return next(err)
-      }
-  
-      if(user) {
-        delete user['password']
-        const token = authenticate.getToken({_id: user._id});
-        res.statusCode = 201;
-        res.json({
-          success : true,
-          data  : user,
-          message : "Successfully completed Registration"
-        });
-      }else{
-        res.statusCode = 400;
-        res.json({
-          success : false,
-          error     : 'ErrorFields or ValidationError',
-          message : info
-        });
-      }
-      })(req, res, next);
-
+  .post(user.userRegister, user.verifyPhone, (req, res, next) => {
+    token = user.getToken({_id : req.user._id});
+    response.dataResponse(res, 200, {token : token}, 'Successfully registered');
   });
 
+userRouter.route('/login')
+  .post(user.userLogin, user.verifyPhone, (req, res, next) => {
+      token = user.getToken({_id : req.user._id});
+      response.dataResponse(res, 200, {token : token}, 'Successfully loged in');
+  });
 
   
 userRouter.route("/login")
@@ -118,5 +95,18 @@ userRouter.route('/edit')
     });
   });
 
+userRouter.route('/delete')
+  .delete(user.verifyUser,user.verifyPhone,(req, res, next) => {
+    User.findByIdAndRemove({_id : req.user._id},(err, user) => {
+      if(err){
+        response.errorResponse(res, 500, 'ServerError','Please contact administrator');
+      }
+      if(user){
+        response.dataResponse(res, 200, user, 'Successfully deleted the user');
+      }else{
+        response.errorResponse(res, 400, err, 'Failed to delete this user');
+      }
+    });
+  });
 
 module.exports = userRouter;
