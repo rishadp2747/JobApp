@@ -137,6 +137,19 @@ jobsRouter.route('/complete')
                 response.errorResponse(res, 400, 'UpdateError', 'Failed to complete this job');
             }
         })
+    })
+    //to get all completed Jobs of a User
+    .get(user.verifyUser,user.verifyPhone,(req,res,next) => {
+        Job.find({'commitedBy' : req.user._id, 'status' : 'completed'}, (err,job) => {
+            if(err){
+                response.errorResponse(res, 500, 'ServerError', 'Please contact adminsitrator');
+            }
+            if(job){
+                response.dataResponse(res, 200, job, 'Successfully listed  all the jobs the user completed');
+            }else{
+                response.errorResponse(res, 400, 'ListError', 'Failed to list the jobs the user completed');
+            }
+        })
     });
 
 jobsRouter.route('/:jobId')
@@ -228,19 +241,6 @@ jobsRouter.route('/commit')
     })
 });
 
-jobsRouter.route('/complete')
-//to get all completed Jobs of a User
-.get(user.verifyUser,user.verifyPhone,(req,res,next) => {
-    Job.find({'commitedBy' : req.user._id, 'status' : 'completed'}, (err,job) => {
-        if(err){
-            response.errorResponse(res, 500, 'ServerError', 'Please contact adminsitrator');
-        }
-        if(job){
-            response.dataResponse(res, 200, job, 'Successfully listed  all the jobs the user completed');
-        }else{
-            response.errorResponse(res, 400, 'ListError', 'Failed to list the jobs the user completed');
-        }
-    })
-});
+
 
 module.exports = jobsRouter;
