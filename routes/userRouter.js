@@ -72,5 +72,31 @@ userRouter.route("/skill/add")
     });
 });
 
+// to delete a skill for a user
+UserRouter.route('/skill/remove')
+.delete(user.verifyUser,(req,res,next) => {
+  req.user.skills.pop(req.body.skills);
+  req.user.save( (err) => {
+    if(err){
+      response.errorResponse(res,400,err.name, err.message);
+    }else {
+      response.dataResponse(res, 200 ,job , ' Successfully  removed the skill');
+    }
+  });
+});
+
+userRouter.route('/delete')
+  .delete(user.verifyUser,user.verifyPhone,(req, res, next) => {
+    User.findByIdAndRemove({_id : req.user._id},(err, user) => {
+      if(err){
+        response.errorResponse(res, 500, 'ServerError','Please contact administrator');
+      }
+      if(user){
+        response.dataResponse(res, 200, user, 'Successfully deleted the user');
+      }else{
+        response.errorResponse(res, 400, err, 'Failed to delete this user');
+      }
+    });
+  });
 
 module.exports = userRouter;

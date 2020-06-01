@@ -3,7 +3,7 @@ var router = express.Router();
 var bodyParser = require('body-parser');
 
 var Skills = require('../models/Skills');
-
+var skill  = require('../middlewares/jobMiddlewares');
 
 const skillsRouter = express.Router();
 
@@ -25,7 +25,7 @@ skillsRouter.route('/')
       res.json({
         success : false,
         err     : err.name,
-        message : err.message 
+        message : err.message
       });
     });
 })
@@ -61,9 +61,23 @@ skillsRouter.route('/')
       res.json({
         success : false,
         err     : err.name,
-        message : err.message 
+        message : err.message
       });
     });
+});
+// to delete a skill for a user
+skillsRouter.route('/remove')
+.delete(user.verifyUser,(req,res,next) => {
+   Skills.findOneAndRemove({'_id' : req.params.userId},(err,skill) => {
+     if(err){
+       response.errorResponse(res, 500, 'ServerError', 'Please contact adminsitrator');
+     }
+     if(skill){
+         response.dataResponse(res, 200, job, 'Successfully removed  the skill');
+       }else{
+           response.errorResponse(res, 400, 'UpdateError', 'Failed to remove the skill');
+       }
+   })
 });
 
 
