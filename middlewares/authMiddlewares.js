@@ -1,13 +1,17 @@
 var passport = require('passport');
-var User = require('../models/Users');
-
 var JwtStrategy = require('passport-jwt').Strategy;
 var ExtractJwt = require('passport-jwt').ExtractJwt;
 var jwt = require('jsonwebtoken');
 var config = require('../config/auth');
 
-
+const User = require('../models/Users');
 const Admin = require('../models/Admins');
+
+exports.getToken = function(user) {
+    return jwt.sign(user, config.secretKey, {
+        expiresIn : 3600 
+    });
+};
 
 
 var opts = {};

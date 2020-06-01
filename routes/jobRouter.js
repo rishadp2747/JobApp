@@ -5,7 +5,7 @@ var bodyParser = require('body-parser');
 const response = require('../serviceProviders/respondent');
 
 //middlewares
-var auth = require('../middlewares/authMiddleware');
+var auth = require('../middlewares/authMiddlewares');
 var user = require('../middlewares/userMiddlewares');
 var job  =  require('../middlewares/jobMiddlewares'); 
 

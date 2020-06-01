@@ -1,6 +1,6 @@
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
-var Admin = require('../models/Admin');
+var Admin = require('../models/Admins');
 var validator = require('./validator');
 
 const response = require('../serviceProviders/respondent');
@@ -10,7 +10,7 @@ passport.use('adminLogin', new LocalStrategy({
     passwordField : 'password',
     passReqToCallback : true
 }, (req, email, password, done) =>{
-    Admin.findOne({'email' : eamil}, (err, admin) => {
+    Admin.findOne({'email' : email}, (err, admin) => {
         if(err)
             return done(null);
         if(!admin){
@@ -28,7 +28,7 @@ passport.use('adminRegister', new LocalStrategy ({
     passReqToCallback : true
 },(req, email, password, done) => {
     process.nextTick( () => {
-        User.findOne({'email' : email }, (err, admin) => {
+        Admin.findOne({'email' : email }, (err, admin) => {
             if(err){
                return done(err);
             }

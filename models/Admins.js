@@ -2,6 +2,7 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 const passportLocalMongoose = require('passport-local-mongoose');
 require('mongoose-type-email');
+var bcrypt   = require('bcrypt');
 
 const adminSchema = new Schema({
   name : {

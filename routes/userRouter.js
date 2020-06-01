@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 
 //middlewares
 var user = require('../middlewares/userMiddlewares');
-var auth = require('../middlewares/authMiddleware');
+var auth = require('../middlewares/authMiddlewares');
 
 //services
 var response = require('../serviceProviders/respondent');
