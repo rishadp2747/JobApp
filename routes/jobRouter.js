@@ -5,6 +5,7 @@ var bodyParser = require('body-parser');
 const response = require('../serviceProviders/respondent');
 
 //middlewares
+var auth = require('../middlewares/authMiddleware');
 var user = require('../middlewares/userMiddlewares');
 var job  =  require('../middlewares/jobMiddlewares'); 
 
@@ -15,7 +16,7 @@ var jobsRouter = express.Router();
 jobsRouter.use(bodyParser.json());
 
 jobsRouter.route('/')
-    .get( user.verifyUser, (req, res, next) => {
+    .get( auth.verifyUser, (req, res, next) => {
         //to get all the jobs in the pool
         Job.find({},'title description dateFrom dateTo timeFrom timeTo skill status ').populate({
             path : 'postedBy',
@@ -37,7 +38,7 @@ jobsRouter.route('/')
             response.errorResponse(res, 500, 'ServerError', 'Please contact administrator ! Error : JR100');
         })
     })
-    .post( user.verifyUser, user.verifyPhone, (req, res, next) => {
+    .post( auth.verifyUser, user.verifyPhone, (req, res, next) => {
         var job = new Job(req.body);
         job.postedBy = req.user._id;
         job.save((err) => {
@@ -56,7 +57,7 @@ jobsRouter.route('/')
 
 
 jobsRouter.route('/request/:jobId')
-    .get(user.verifyUser, job.verifyJob, job.verifyOwner, (req, res, next) => {
+    .get(auth.verifyUser, job.verifyJob, job.verifyOwner, (req, res, next) => {
         //to display all the requests of a particular job
         Job.findOne({'_id' : req.params.jobId},'requests').populate('requests','name skill age sex phone email rating location')
             .then( (jobs) => {
@@ -67,7 +68,7 @@ jobsRouter.route('/request/:jobId')
                 response.errorResponse(res, 500, 'ServerError', 'Please contact administrator ! Error : JR200')
             })
     })
-    .put(user.verifyUser, user.verifyPhone, job.verifyJob, job.verifyStatusActivePending, job.verifySkill, (req, res, next) => {
+    .put(auth.verifyUser, user.verifyPhone, job.verifyJob, job.verifyStatusActivePending, job.verifySkill, (req, res, next) => {
         //to show the intrest in a job in a particular job.
         Job.findOne({'_id' : req.params.jobId}, (err, job) => {
             if(err){
@@ -92,7 +93,7 @@ jobsRouter.route('/request/:jobId')
             }
         })
     })
-    .delete(user.verifyUser, job.verifyJob, job.verifyRequest, (req, res, next) => {
+    .delete(auth.verifyUser, job.verifyJob, job.verifyRequest, (req, res, next) => {
         //to remove a request from the job
         Job.findOneAndUpdate({'_id' : req.params.jobId, requests : req.user._id},{ $pullAll: {requests: [req.user._id] }},{'new' : true},(err, job) => {
             if(err){
@@ -109,7 +110,7 @@ jobsRouter.route('/request/:jobId')
 
 
 jobsRouter.route('/commit/:userId')
-    .put(user.verifyUser, job.verifyJob, job.verifyOwner, job.verifyRequest, (req, res, next) => {
+    .put(auth.verifyUser, job.verifyJob, job.verifyOwner, job.verifyRequest, (req, res, next) => {
         //select the user fo this job
         Job.findOneAndUpdate({'_id' : req.body.jobId}, {'commitedBy' : req.params.userId, 'status' : 'commit'}, {'new' : true }, (err, job) => {
             if(err){
@@ -125,7 +126,7 @@ jobsRouter.route('/commit/:userId')
 
 
 jobsRouter.route('/complete')
-    .put(user.verifyUser, job.verifyJob, job.verifyOwner, job.verifyCommit, (req, res, next) => {
+    .put(auth.verifyUser, job.verifyJob, job.verifyOwner, job.verifyCommit, (req, res, next) => {
         //change the status as completed
         Job.findOneAndUpdate({'_id' : req.body.jobId}, {'status' : 'completed'}, {'new' : true }, (err, job) => {
             if(err){
@@ -139,7 +140,7 @@ jobsRouter.route('/complete')
         })
     })
     //to get all completed Jobs of a User
-    .get(user.verifyUser,user.verifyPhone,(req,res,next) => {
+    .get(auth.verifyUser,user.verifyPhone,(req,res,next) => {
         Job.find({'commitedBy' : req.user._id, 'status' : 'completed'}, (err,job) => {
             if(err){
                 response.errorResponse(res, 500, 'ServerError', 'Please contact adminsitrator');
@@ -154,7 +155,7 @@ jobsRouter.route('/complete')
 
 jobsRouter.route('/:jobId')
     //To delete a Job
-    .delete(user.verifyUser, job.verifyJob, job.verifyOwner, (req, res, next) => {
+    .delete(auth.verifyUser, job.verifyJob, job.verifyOwner, (req, res, next) => {
         Job.findByIdAndRemove({_id : req.params.jobId}, (err, job) => {
             if(err){
                 response.errorResponse(res, 500, 'ServerError', 'Please contact adminsitrator');
@@ -167,7 +168,7 @@ jobsRouter.route('/:jobId')
         });
     })
     //To update a Job
-    .put(user.verifyUser, user.verifyPhone, job.verifyJob, job.verifyOwner, (req, res, next) => {
+    .put(auth.verifyUser, user.verifyPhone, job.verifyJob, job.verifyOwner, (req, res, next) => {
         Job.findByIdAndUpdate({_id : req.params.jobId},req.body, (err,job) => {
             if(err) {
                 response.errorResponse(res, 500, 'ServerError', 'Please contact adminsitrator');
@@ -182,7 +183,7 @@ jobsRouter.route('/:jobId')
     });
 
 jobsRouter.route('/myjob')
-    .get(user.verifyUser, (req, res, next) => {
+    .get(auth.verifyUser, (req, res, next) => {
         Job.find( {'postedBy' : req.user._id },(err,job) => {
           if(err){
             response.errorResponse(res, 500, 'ServerError', 'Please contact adminsitrator');
@@ -197,7 +198,7 @@ jobsRouter.route('/myjob')
 
 //to get the details of a particular job
 jobsRouter.route('/jobs/:jobId')
-    .get(user.verifyUser,job.verifyJob,(req,res,next) => {
+    .get(auth.verifyUser,job.verifyJob,(req,res,next) => {
       Job.find( {'_id' : req.params.jobId},(err,job) => {
           if(err){
             response.errorResponse(res, 500, 'ServerError', 'Please contact adminsitrator');
@@ -212,7 +213,7 @@ jobsRouter.route('/jobs/:jobId')
 
 jobsRouter.route('/request')
     //to list all Jobs requested by a User
-    .get(user.verifyUser,user.verifyPhone,(req,res,next) => {
+    .get(auth.verifyUser,user.verifyPhone,(req,res,next) => {
         Job.find({requests : { $in: [req.user._id] }},(err,job) => {
             if(err){
                 response.errorResponse(res, 500, 'ServerError', 'Please contact adminsitrator');
@@ -228,7 +229,7 @@ jobsRouter.route('/request')
 
 jobsRouter.route('/commit')
 //to get all Jobs a User got selected
-.get(user.verifyUser,user.verifyPhone,(req,res,next) => {
+.get(auth.verifyUser,user.verifyPhone,(req,res,next) => {
     Job.find({'commitedBy' : req.user._id, 'status' : 'commit'}, (err,job) => {
         if(err){
             response.errorResponse(res, 500, 'ServerError', 'Please contact adminsitrator');

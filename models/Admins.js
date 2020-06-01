@@ -8,11 +8,15 @@ const adminSchema = new Schema({
     type  : String,
     required  : true
   },
+  password : {
+    type : String,
+    required : true
+  },
   email : {
     type: mongoose.SchemaTypes.Email,
     required: true
   },
-  superUser : {
+  superadmin : {
     type  : Boolean,
     default : false
   }
@@ -20,4 +24,17 @@ const adminSchema = new Schema({
   timestamps : true 
 });
 adminSchema.plugin(passportLocalMongoose);
+
+
+// generating a hash
+adminSchema.methods.generateHash = function(password) {
+  return bcrypt.hashSync(password, bcrypt.genSaltSync(8), null);
+};
+
+// checks if password is valid
+adminSchema.methods.validPassword = function(password) {
+  return bcrypt.compareSync(password, this.password);
+};
+
+
 module.exports =  mongoose.model('Admin', adminSchema);
