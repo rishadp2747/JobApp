@@ -12,23 +12,16 @@ skillsRouter.use(bodyParser.json());
 
 skillsRouter.route('/')
 .get((req,res,next) => {
-  Skills.find({},'_id title basicCharge hourlyCharge')
-    .then((skills) => {
-      res.statusCode = 200;
-      res.json({
-        success : true,
-        data    : skills,
-        message : "Successfully Listed all skills"
-      });
-    })
-    .catch( (err) =>{
-      res.statusCode = 500;
-      res.json({
-        success : false,
-        err     : err.name,
-        message : err.message
-      });
-    });
+  Skills.find({},'_id title basicCharge hourlyCharge',(err, skill) => {
+    if(err){
+      response.errorResponse(res, 500, 'ServerError', 'Please contact administrator');
+    }
+    if(skill){
+      response.dataResponse(res, 200, skill, 'Successfully listed the skills');
+    }else{
+      response.errorResponse(res, 400, 'ListError', 'Failed to list skills');
+    }
+  })
 })
 .post((req,res,next) => {
   var skill = new Skills (req.body);
