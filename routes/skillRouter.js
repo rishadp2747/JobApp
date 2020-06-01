@@ -5,8 +5,9 @@ var bodyParser = require('body-parser');
 var Skills = require('../models/Skills');
 var skill  = require('../middlewares/jobMiddlewares');
 
-const skillsRouter = express.Router();
+response = require('../serviceProviders/respondent');
 
+const skillsRouter = express.Router();
 skillsRouter.use(bodyParser.json());
 
 skillsRouter.route('/')
@@ -30,54 +31,15 @@ skillsRouter.route('/')
     });
 })
 .post((req,res,next) => {
-  var skill = new Skills (req.body).save()
-    .then( (skill) => {
-      res.statusCode = 200;
-      res.json({
-        success : true,
-        message : "Successfully added new skill"
-      });
-    }, (err) => {
-      if(err.errors){
-        if(err.errors.createdBy){
-          res.statusCode = 400;
-          res.json({
-            success : false,
-            err     : err.errors.createdBy.name,
-            message : err.errors.createdBy.message
-          });
-        }
-      }else{
-        res.statusCode = 400;
-        res.json({
-          success : false,
-          err     : err.name,
-          message : err.message
-        });
-      }
-    })
-    .catch( (err) =>{
-      res.statusCode = 500;
-      res.json({
-        success : false,
-        err     : err.name,
-        message : err.message
-      });
-    });
-});
-// to delete a skill for a user
-skillsRouter.route('/remove')
-.delete(user.verifyUser,(req,res,next) => {
-   Skills.findOneAndRemove({'_id' : req.params.userId},(err,skill) => {
-     if(err){
-       response.errorResponse(res, 500, 'ServerError', 'Please contact adminsitrator');
-     }
-     if(skill){
-         response.dataResponse(res, 200, job, 'Successfully removed  the skill');
-       }else{
-           response.errorResponse(res, 400, 'UpdateError', 'Failed to remove the skill');
-       }
-   })
+  var skill = new Skills (req.body);
+  skill.save( (err) => {
+    if(err){
+      response.errorResponse(res, 500, 'ServerError', 'please contact administrator');
+    }else{
+      response.dataResponse(res, 201, skill, 'Successfully created the skill');
+    }
+  })
+    
 });
 
 
