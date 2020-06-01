@@ -72,7 +72,7 @@ userRouter.route("/skill/add")
 });
 
 // to delete a skill for a user
-UserRouter.route('/skill/remove')
+userRouter.route('/skill/remove')
 .delete(user.verifyUser,(req,res,next) => {
   req.user.skills.pop(req.body.skills);
   req.user.save( (err) => {
