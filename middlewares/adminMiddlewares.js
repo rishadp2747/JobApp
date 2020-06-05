@@ -90,6 +90,15 @@ exports.adminRegister = (req, res, next) => {
         }
     })(req, res, next);
 }
+
+
+exports.verifyAdmin = (req, res, next) => {
+    Admin.findOne({'_id' : req.user._id}, (err, admin) => {
+        if(err){
+            
+        }
+    })
+}
     
 
 
